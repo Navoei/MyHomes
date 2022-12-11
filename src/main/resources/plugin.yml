@@ -1,0 +1,7 @@
+name: Myhomes
+version: '${project.version}'
+main: me.navoei.myhomes.Myhomes
+api-version: 1.19
+prefix: [ MyHomes ]
+authors: [ Navoei ]
+description: A homes plugin with UUID support. Allows players to invite others to their sethome, as well as setting it to be public or private.
