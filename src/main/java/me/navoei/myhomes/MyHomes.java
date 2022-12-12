@@ -1,18 +1,48 @@
 package me.navoei.myhomes;
 
+import me.navoei.myhomes.commands.player.HomeInfoCommand;
+import me.navoei.myhomes.commands.player.ListHomesCommand;
+import me.navoei.myhomes.commands.player.ManageHomeCommand;
+import me.navoei.myhomes.commands.player.SetHomeCommand;
+import me.navoei.myhomes.storage.Database;
+import me.navoei.myhomes.storage.SQLite;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class Myhomes extends JavaPlugin {
+public final class MyHomes extends JavaPlugin {
+
+    private Database database;
+    static MyHomes instance;
 
     @Override
     public void onEnable() {
         // Plugin startup logic
+
+        MyHomes.instance = this;
+
+        this.saveDefaultConfig();
+
+        this.database = new SQLite(this);
+        this.database.load();
+
+        getCommand("sethome").setExecutor(new SetHomeCommand());
+        getCommand("listhomes").setExecutor(new ListHomesCommand());
+        getCommand("homeinfo").setExecutor(new HomeInfoCommand());
+        getCommand("managehome").setExecutor(new ManageHomeCommand());
 
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+
+    }
+
+    public Database getRDatabase() {
+        return this.database;
+    }
+
+    public static MyHomes getInstance() {
+        return instance;
     }
 }
 
@@ -31,8 +61,7 @@ Player Commands:
 /managehome <homename> invitelist shows players that are invited to the home
 
 /listhomes Lists all of the player's homes.
-
-/homelimit Shows the amount of homes that can be set.
+/homeinvites Lists homes the player is invited to.
 
 /delhome
 /delhome <homename>
@@ -40,7 +69,6 @@ Player Commands:
 /homeinfo <homename> Lists the home's information.
 
 Admin Commands: (Some commands could be put without spaces to reduce conflicts.)
-/homelimit <player> Shows how many homes this player can set.
 /manageplayerhomes <player> <homename> <invite/uninvite> <player>
 /manageplayerhomes <player> <homename> <public/private>
 /manageplayerhomes <player> <homename> delete
@@ -49,7 +77,7 @@ Admin Commands: (Some commands could be put without spaces to reduce conflicts.)
 /setplayerhome <player> <homename>
 /listhomes <player>
 
-
+/showinvites <player> Shows the homes the player is invited to.
 
 /sendtohome <player> <homeowner> <home>
  */
