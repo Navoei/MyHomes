@@ -53,6 +53,7 @@ Player Commands:
 /sethome <homename>
 
 /home (takes you to the default home "home")
+/home <homename>
 /home <player> (takes you to the player's default home "home")
 /home <player> <homename>
 

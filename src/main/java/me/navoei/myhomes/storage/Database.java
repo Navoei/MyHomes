@@ -121,17 +121,8 @@ public abstract class Database {
             ps = conn.prepareStatement("SELECT * FROM " + homesTable + " WHERE player_uuid = '"+player.getUniqueId()+"';");
 
             rs = ps.executeQuery();
-            while(rs.next()){
-                    homeList.add(rs.getString("home_name"));
-                    homeList.add(rs.getString("world"));
-                    homeList.add(rs.getString("x"));
-                    homeList.add(rs.getString("y"));
-                    homeList.add(rs.getString("z"));
-                    if (rs.getInt("privacy_status") == 0) {
-                        homeList.add("False");
-                    } else {
-                        homeList.add("True");
-                    }
+            while(rs.next()) {
+                homeList.add(rs.getString("home_name"));
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
