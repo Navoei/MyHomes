@@ -1,9 +1,6 @@
 package me.navoei.myhomes;
 
-import me.navoei.myhomes.commands.player.HomeInfoCommand;
-import me.navoei.myhomes.commands.player.ListHomesCommand;
-import me.navoei.myhomes.commands.player.ManageHomeCommand;
-import me.navoei.myhomes.commands.player.SetHomeCommand;
+import me.navoei.myhomes.commands.player.*;
 import me.navoei.myhomes.storage.Database;
 import me.navoei.myhomes.storage.SQLite;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,6 +25,8 @@ public final class MyHomes extends JavaPlugin {
         getCommand("listhomes").setExecutor(new ListHomesCommand());
         getCommand("homeinfo").setExecutor(new HomeInfoCommand());
         getCommand("managehome").setExecutor(new ManageHomeCommand());
+        getCommand("deletehome").setExecutor(new DeleteHomeCommand());
+        getCommand("home").setExecutor(new HomeCommand());
 
     }
 
@@ -58,11 +57,14 @@ Player Commands:
 /home <player> <homename>
 
 /managehome <homename> <invite/uninvite> <player>
-/managehome <homename> <public/private>
+/managehome <homename> <privacy> <public/private>
 /managehome <homename> invitelist shows players that are invited to the home
 
 /listhomes Lists all of the player's homes.
-/homeinvites Lists homes the player is invited to.
+/homelist
+
+/listinvites Lists homes the player is invited to.
+/invitelist
 
 /delhome
 /delhome <homename>
@@ -71,14 +73,15 @@ Player Commands:
 
 Admin Commands: (Some commands could be put without spaces to reduce conflicts.)
 /manageplayerhomes <player> <homename> <invite/uninvite> <player>
-/manageplayerhomes <player> <homename> <public/private>
+/manageplayerhomes <player> <homename> <privacy> <public/private>
 /manageplayerhomes <player> <homename> delete
 /manageplayerhomes <player> <homename> invitelist
 /manageplayerhomes <player> <homename> info Shows information such as who is invited, public/private status, and location.
-/setplayerhome <player> <homename>
-/listhomes <player>
+/manageplayerhomes <player> <homename> set
+/manageplayerhomes <player> <homename> Go to a player's home regardless of invites or privacy status.
 
-/showinvites <player> Shows the homes the player is invited to.
+/showhomelist <player> Lists the player's homes.
 
-/sendtohome <player> <homeowner> <home>
+/showhomeinvites <player>
+
  */

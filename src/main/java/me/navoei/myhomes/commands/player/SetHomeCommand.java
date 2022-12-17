@@ -24,13 +24,33 @@ public class SetHomeCommand implements CommandExecutor {
         }
 
         if (args.length == 1) {
+
+            if (!MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).isEmpty()) {
+                String homeName = MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).get(0);
+                MyHomes.getInstance().getRDatabase().updateHomeLocation(player, homeName);
+                player.sendMessage("Your home has been updated with a new location.");
+                return true;
+            }
+
+            if (args[0].equalsIgnoreCase("home")) {
+                MyHomes.getInstance().getRDatabase().setHomeColumns(player, "Home", false);
+                player.sendMessage("Your home has been set.");
+                return true;
+            }
+
             MyHomes.getInstance().getRDatabase().setHomeColumns(player, args[0], false);
+            player.sendMessage("Your home has been set.");
             return true;
         }
 
-        MyHomes.getInstance().getRDatabase().setHomeColumns(player, "home", false);
+        if (!MyHomes.getInstance().getRDatabase().getHomeInfo(player, "Home").isEmpty()) {
+            MyHomes.getInstance().getRDatabase().updateHomeLocation(player, "Home");
+            player.sendMessage("Your home has been updated with a new location.");
+            return true;
+        }
+
+        MyHomes.getInstance().getRDatabase().setHomeColumns(player, "Home", false);
+        player.sendMessage("Your home has been set.");
         return false;
-
-
     }
 }

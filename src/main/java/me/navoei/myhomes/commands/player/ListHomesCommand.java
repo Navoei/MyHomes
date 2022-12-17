@@ -23,7 +23,6 @@ public class ListHomesCommand implements CommandExecutor {
         Player player = (Player) sender;
 
         sender.sendMessage(MyHomes.getInstance().getRDatabase().getHomeList(player).toString());
-
         return false;
     }
 }

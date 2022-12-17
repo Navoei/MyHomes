@@ -16,3 +16,8 @@ commands:
     description: Gets the home's information.
   managehome:
     description: Manages the specified home.
+  deletehome:
+    description: Deletes the specified home.
+    aliases: delhome
+  home:
+    description: Teleports a player to the specified home.
