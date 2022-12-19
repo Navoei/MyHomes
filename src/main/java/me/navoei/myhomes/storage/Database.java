@@ -19,7 +19,7 @@ public abstract class Database {
     MyHomes plugin;
     Connection connection;
     Fetcher uuidFetcher = new Fetcher();
-    // The name of the table we created back in SQLite class.
+
     public String homesTable = "homes";
     public String invitesTable = "invites";
     public int tokens = 0;
@@ -43,7 +43,6 @@ public abstract class Database {
         }
     }
 
-    // Now we need methods to save things to the database
     public void setHomeColumns(Player player, String homeName, Boolean privacy_status) {
         Connection conn = null;
         PreparedStatement ps = null;
@@ -59,17 +58,6 @@ public abstract class Database {
             ps.setFloat(7, player.getLocation().getYaw());
             ps.setFloat(8, player.getLocation().getPitch());
             ps.setBoolean(9, privacy_status);
-            // YOU MUST put these into this line!! And depending on how many
-            // colums you put (say you made 5) All 5 need to be in the brackets
-            // Seperated with comma's (,) AND there needs to be the same amount of
-            // question marks in the VALUES brackets. Right now i only have 3 colums
-            // So VALUES (?,?,?) If you had 5 colums VALUES(?,?,?,?,?)
-
-            //ps.setInt(2, tokens); // This sets the value in the database. The colums go in order. Player is ID 1, kills is ID 2, Total would be 3 and so on. you can use
-            // setInt, setString and so on. tokens and total are just variables sent in, You can manually send values in as well. p.setInt(2, 10) <-
-            // This would set the players kills instantly to 10. Sorry about the variable names, It sets their kills to 10 i just have the variable called
-            // Tokens from another plugin :/
-            //ps.setInt(3, total);
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);

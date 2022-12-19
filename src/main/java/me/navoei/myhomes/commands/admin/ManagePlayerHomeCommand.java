@@ -11,6 +11,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class ManagePlayerHomeCommand implements CommandExecutor, TabCompleter {
 
@@ -37,9 +38,13 @@ public class ManagePlayerHomeCommand implements CommandExecutor, TabCompleter {
         String playerName = args[0];
         String homeName = args[1];
 
-        if (!MyHomes.getInstance().getRDatabase().getHomeListUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(playerName).join()).join().toString().toLowerCase().contains(homeName.toLowerCase())) {
-            sender.sendMessage("This player " + playerName + " does not have a home by the name " + homeName + ".");
-            return true;
+        try {
+            if (!MyHomes.getInstance().getRDatabase().getHomeListUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(playerName).get()).get().toString().toLowerCase().contains(homeName.toLowerCase())) {
+                sender.sendMessage("This player " + playerName + " does not have a home by the name " + homeName + ".");
+                return true;
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
 
         if (args.length == 4) {
@@ -82,7 +87,12 @@ public class ManagePlayerHomeCommand implements CommandExecutor, TabCompleter {
 
             Player player = (Player) sender;
 
-            List<String> home = MyHomes.getInstance().getRDatabase().getHomeUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(playerName).join(), homeName).join();
+            List<String> home;
+            try {
+                home = MyHomes.getInstance().getRDatabase().getHomeUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(playerName).get(), homeName).get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
 
             World world = MyHomes.getInstance().getServer().getWorld(home.get(0));
             Location homeLocation = new Location(world, Double.parseDouble(home.get(1)), Double.parseDouble(home.get(2)), Double.parseDouble(home.get(3)), Float.parseFloat(home.get(4)), Float.parseFloat(home.get(5)));

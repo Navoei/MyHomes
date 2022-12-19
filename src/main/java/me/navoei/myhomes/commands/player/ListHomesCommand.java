@@ -6,6 +6,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.concurrent.ExecutionException;
+
 public class ListHomesCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -22,7 +24,12 @@ public class ListHomesCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        sender.sendMessage(MyHomes.getInstance().getRDatabase().getHomeList(player).join().toString());
+        try {
+            sender.sendMessage(MyHomes.getInstance().getRDatabase().getHomeList(player).get().toString());
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+
         return false;
     }
 }

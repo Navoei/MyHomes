@@ -7,6 +7,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.concurrent.ExecutionException;
+
 public class SetHomeCommand implements CommandExecutor {
 
     @Override
@@ -27,11 +29,15 @@ public class SetHomeCommand implements CommandExecutor {
 
         if (args.length == 1) {
 
-            if (!MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).join().isEmpty()) {
-                String homeName = MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).join().get(0);
-                MyHomes.getInstance().getRDatabase().updateHomeLocation(player, homeName);
-                player.sendMessage("Your home has been updated with a new location.");
-                return true;
+            try {
+                if (!MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).get().isEmpty()) {
+                    String homeName = MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).get().get(0);
+                    MyHomes.getInstance().getRDatabase().updateHomeLocation(player, homeName);
+                    player.sendMessage("Your home has been updated with a new location.");
+                    return true;
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
             }
 
             if (args[0].equalsIgnoreCase("home")) {
@@ -45,10 +51,14 @@ public class SetHomeCommand implements CommandExecutor {
             return true;
         }
 
-        if (!MyHomes.getInstance().getRDatabase().getHomeInfo(player, "Home").join().isEmpty()) {
-            MyHomes.getInstance().getRDatabase().updateHomeLocation(player, "Home");
-            player.sendMessage("Your home has been updated with a new location.");
-            return true;
+        try {
+            if (!MyHomes.getInstance().getRDatabase().getHomeInfo(player, "Home").get().isEmpty()) {
+                MyHomes.getInstance().getRDatabase().updateHomeLocation(player, "Home");
+                player.sendMessage("Your home has been updated with a new location.");
+                return true;
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
 
         MyHomes.getInstance().getRDatabase().setHomeColumns(player, "Home", false);

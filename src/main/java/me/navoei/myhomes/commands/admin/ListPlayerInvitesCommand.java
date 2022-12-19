@@ -6,6 +6,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
+import java.util.concurrent.ExecutionException;
+
 public class ListPlayerInvitesCommand implements CommandExecutor {
 
     Fetcher uuidFetcher = new Fetcher();
@@ -22,7 +24,11 @@ public class ListPlayerInvitesCommand implements CommandExecutor {
             return true;
         }
 
-        sender.sendMessage(MyHomes.getInstance().getRDatabase().getHomeInviteList(uuidFetcher.getOfflinePlayerUUID(args[0]).join()).join().toString());
+        try {
+            sender.sendMessage(MyHomes.getInstance().getRDatabase().getHomeInviteList(uuidFetcher.getOfflinePlayerUUID(args[0]).get()).get().toString());
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
 
         return true;
     }

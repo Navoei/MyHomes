@@ -6,6 +6,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.concurrent.ExecutionException;
+
 public class ListInvitesCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -17,7 +19,11 @@ public class ListInvitesCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        player.sendMessage(MyHomes.getInstance().getRDatabase().getHomeInviteList(player.getUniqueId().toString()).join().toString());
+        try {
+            player.sendMessage(MyHomes.getInstance().getRDatabase().getHomeInviteList(player.getUniqueId().toString()).get().toString());
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
 
 
         return false;
