@@ -6,7 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class ListHomesCommand implements CommandExecutor {
+public class ListInvitesCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -15,14 +15,11 @@ public class ListHomesCommand implements CommandExecutor {
             return true;
         }
 
-        if (args.length >= 1) {
-            sender.sendMessage("Too many arguments!");
-            return true;
-        }
-
         Player player = (Player) sender;
 
-        sender.sendMessage(MyHomes.getInstance().getRDatabase().getHomeList(player).join().toString());
+        player.sendMessage(MyHomes.getInstance().getRDatabase().getHomeInviteList(player.getUniqueId().toString()).join().toString());
+
+
         return false;
     }
 }

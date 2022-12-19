@@ -6,14 +6,14 @@ prefix: MyHomes
 authors: [ Navoei ]
 description: A homes plugin with UUID support. Allows players to invite others to their sethome, as well as setting it to be public or private.
 commands:
+  importolddatabase:
+    description: Converts old database from MyHome.
   sethome:
     description: Sets a player's home.
     aliases: homeset
   listhomes:
     description: Lists homes.
     aliases: homelist
-  homeinfo:
-    description: Gets the home's information.
   managehome:
     description: Manages the specified home.
   deletehome:
@@ -21,3 +21,12 @@ commands:
     aliases: delhome
   home:
     description: Teleports a player to the specified home.
+  invitelist:
+    description: Shows homes the player is invited to.
+    aliases: listinvites
+  listplayerhomes:
+    description: Allows admins to list a player's homes.
+  listplayerinvites:
+    description: Allows admins to list homes a player is invited to.
+  manageplayerhome:
+    description: Allows admins to manage other player's homes.

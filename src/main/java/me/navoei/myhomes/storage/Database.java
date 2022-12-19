@@ -1,11 +1,12 @@
 package me.navoei.myhomes.storage;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.File;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 import me.navoei.myhomes.uuid.Fetcher;
@@ -84,6 +85,36 @@ public abstract class Database {
         }
     }
 
+    public void setHomeColumnsUsingHomeownerUUID(String homeownerUUID, Player adminPlayer, String homeName, Boolean privacy_status) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = getSQLConnection();
+            ps = conn.prepareStatement("REPLACE INTO " + homesTable + " (player_uuid,home_name,world,x,y,z,yaw,pitch,privacy_status) VALUES(?,?,?,?,?,?,?,?,?)"); // IMPORTANT. In SQLite class, We made 3 colums. player, Kills, Total.
+            ps.setString(1, homeownerUUID);
+            ps.setString(2, homeName);
+            ps.setString(3, adminPlayer.getWorld().getName());
+            ps.setDouble(4, adminPlayer.getLocation().getX());
+            ps.setDouble(5, adminPlayer.getLocation().getY());
+            ps.setDouble(6, adminPlayer.getLocation().getZ());
+            ps.setFloat(7, adminPlayer.getLocation().getYaw());
+            ps.setFloat(8, adminPlayer.getLocation().getPitch());
+            ps.setBoolean(9, privacy_status);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
     public void updateHomeLocation(Player player, String homeName) {
         Connection conn = null;
         PreparedStatement ps = null;
@@ -96,6 +127,33 @@ public abstract class Database {
             ps.setDouble(4, player.getLocation().getZ());
             ps.setFloat(5, player.getLocation().getYaw());
             ps.setFloat(6, player.getLocation().getPitch());
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
+    public void updateHomeLocationUsingHomeownerUUID(String homeownerUUID, Player adminPlayer, String homeName) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = getSQLConnection();
+            ps = conn.prepareStatement("UPDATE " + homesTable + " SET world = ?, x = ?, y = ?, z = ?, yaw = ?, pitch = ? WHERE player_uuid = '"+homeownerUUID+"' AND home_name LIKE '"+homeName+"';");
+            ps.setString(1, adminPlayer.getWorld().getName());
+            ps.setDouble(2, adminPlayer.getLocation().getX());
+            ps.setDouble(3, adminPlayer.getLocation().getY());
+            ps.setDouble(4, adminPlayer.getLocation().getZ());
+            ps.setFloat(5, adminPlayer.getLocation().getYaw());
+            ps.setFloat(6, adminPlayer.getLocation().getPitch());
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
@@ -155,19 +213,19 @@ public abstract class Database {
         }
     }
 
-    public List<String> getHomeInfo(Player player, String homeName) {
+    public CompletableFuture<List<String>> getHomeInfo(Player player, String homeName) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<String> homeInfo = new ArrayList<>();
 
-        List<String> homeInfo = new ArrayList<>();
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs;
+            try {
+                conn = getSQLConnection();
+                ps = conn.prepareStatement("SELECT * FROM " + homesTable + " WHERE player_uuid = '"+player.getUniqueId()+"' AND home_name LIKE '"+homeName+"';");
 
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs;
-        try {
-            conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + homesTable + " WHERE player_uuid = '"+player.getUniqueId()+"' AND home_name LIKE '"+homeName+"';");
-
-            rs = ps.executeQuery();
-            while(rs.next()){
+                rs = ps.executeQuery();
+                while(rs.next()){
                     homeInfo.add(rs.getString("home_name"));
                     homeInfo.add(rs.getString("world"));
                     homeInfo.add(rs.getString("x"));
@@ -178,85 +236,119 @@ public abstract class Database {
                     } else {
                         homeInfo.add("Public");
                     }
-            }
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
+                }
             } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            } finally {
+                try {
+                    if (ps != null)
+                        ps.close();
+                    if (conn != null)
+                        conn.close();
+                } catch (SQLException ex) {
+                    plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                }
             }
-        }
-        return homeInfo;
+            return homeInfo;
+        });
     }
 
-    public List<String> getHome(Player player, String homeName) {
+    public CompletableFuture<List<String>> getHome(Player player, String homeName) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<String> home = new ArrayList<>();
 
-        List<String> home = new ArrayList<>();
-
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs;
-        try {
-            conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + homesTable + " WHERE player_uuid = '"+player.getUniqueId()+"' AND home_name LIKE '"+homeName+"';");
-
-            rs = ps.executeQuery();
-            while(rs.next()){
-                home.add(rs.getString("world"));
-                home.add(rs.getString("x"));
-                home.add(rs.getString("y"));
-                home.add(rs.getString("z"));
-                home.add(rs.getString("yaw"));
-                home.add(rs.getString("pitch"));
-            }
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs;
             try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
+                conn = getSQLConnection();
+                ps = conn.prepareStatement("SELECT * FROM " + homesTable + " WHERE player_uuid = '"+player.getUniqueId()+"' AND home_name LIKE '"+homeName+"';");
+
+                rs = ps.executeQuery();
+                while(rs.next()){
+                    home.add(rs.getString("world"));
+                    home.add(rs.getString("x"));
+                    home.add(rs.getString("y"));
+                    home.add(rs.getString("z"));
+                    home.add(rs.getString("yaw"));
+                    home.add(rs.getString("pitch"));
+                }
             } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            } finally {
+                try {
+                    if (ps != null)
+                        ps.close();
+                    if (conn != null)
+                        conn.close();
+                } catch (SQLException ex) {
+                    plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                }
             }
-        }
-        return home;
+            return home;
+        });
     }
 
-    public List<String> getHomeList(Player player) {
+    public CompletableFuture<List<String>> getHomeList(Player player) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<String> homeList = new ArrayList<>();
 
-        List<String> homeList = new ArrayList<>();
-
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs;
-        try {
-            conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + homesTable + " WHERE player_uuid = '"+player.getUniqueId()+"';");
-
-            rs = ps.executeQuery();
-            while(rs.next()) {
-                homeList.add(rs.getString("home_name"));
-            }
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs;
             try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
+                conn = getSQLConnection();
+                ps = conn.prepareStatement("SELECT * FROM " + homesTable + " WHERE player_uuid = '"+player.getUniqueId()+"';");
+
+                rs = ps.executeQuery();
+                while(rs.next()) {
+                    homeList.add(rs.getString("home_name"));
+                }
             } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            } finally {
+                try {
+                    if (ps != null)
+                        ps.close();
+                    if (conn != null)
+                        conn.close();
+                } catch (SQLException ex) {
+                    plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                }
             }
-        }
-        return homeList;
+            return homeList;
+        });
+    }
+
+    public CompletableFuture<List<String>> getHomeListUsingHomeownerUUID(String playerUUID) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<String> homeList = new ArrayList<>();
+
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs;
+            try {
+                conn = getSQLConnection();
+                ps = conn.prepareStatement("SELECT * FROM " + homesTable + " WHERE player_uuid = '"+playerUUID+"';");
+
+                rs = ps.executeQuery();
+                while(rs.next()) {
+                    homeList.add(rs.getString("home_name"));
+                }
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            } finally {
+                try {
+                    if (ps != null)
+                        ps.close();
+                    if (conn != null)
+                        conn.close();
+                } catch (SQLException ex) {
+                    plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                }
+            }
+            return homeList;
+        });
     }
 
     public void setInviteColumns(Player player, String homeName, String invitedPlayerUUID) {
@@ -326,153 +418,231 @@ public abstract class Database {
         }
     }
 
-    public List<String> getHomeInvitedPlayers(String homeownerUUID, String homeName) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs;
+    public CompletableFuture<List<String>> getHomeInvitedPlayers(String homeownerUUID, String homeName) {
+        return CompletableFuture.supplyAsync(() -> {
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs;
 
-        List<String> invitedPlayers = new ArrayList<>();
+            List<String> invitedPlayers = new ArrayList<>();
 
-        try {
-            conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + invitesTable + " WHERE homeowner_uuid = '"+homeownerUUID+"' AND home_name LIKE '"+homeName+"';");
-
-            rs = ps.executeQuery();
-            while(rs.next()){
-                invitedPlayers.add(uuidFetcher.getPlayerNameFromUUID(rs.getString("invited_player_uuid")));
-            }
-
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
             try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
+                conn = getSQLConnection();
+                ps = conn.prepareStatement("SELECT * FROM " + invitesTable + " WHERE homeowner_uuid = '"+homeownerUUID+"' AND home_name LIKE '"+homeName+"';");
+
+                rs = ps.executeQuery();
+                while(rs.next()){
+                    invitedPlayers.add(uuidFetcher.getPlayerNameFromUUID(rs.getString("invited_player_uuid")).join());
+                }
+
             } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            } finally {
+                try {
+                    if (ps != null)
+                        ps.close();
+                    if (conn != null)
+                        conn.close();
+                } catch (SQLException ex) {
+                    plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                }
             }
-        }
-        return invitedPlayers;
+            return invitedPlayers;
+        });
     }
 
-    public List<String> listHomeownersOfInvitedHomes(Player player) {
+    public CompletableFuture<List<String>> listHomeownersOfInvitedHomes(Player player) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<String> invitedHomeowners = new ArrayList<>();
 
-        List<String> invitedHomeowners = new ArrayList<>();
-
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs;
-        try {
-            conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + invitesTable + " WHERE invited_player_uuid = '"+player.getUniqueId()+"';");
-
-            rs = ps.executeQuery();
-            while(rs.next()){
-                invitedHomeowners.add(uuidFetcher.getPlayerNameFromUUID(rs.getString("homeowner_uuid")));
-            }
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs;
             try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
-        }
-        return invitedHomeowners;
+                conn = getSQLConnection();
+                ps = conn.prepareStatement("SELECT * FROM " + invitesTable + " WHERE invited_player_uuid = '"+player.getUniqueId()+"';");
 
+                rs = ps.executeQuery();
+                while(rs.next()){
+                    invitedHomeowners.add(uuidFetcher.getPlayerNameFromUUID(rs.getString("homeowner_uuid")).join());
+                }
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            } finally {
+                try {
+                    if (ps != null)
+                        ps.close();
+                    if (conn != null)
+                        conn.close();
+                } catch (SQLException ex) {
+                    plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                }
+            }
+            return invitedHomeowners;
+        });
     }
 
-    public List<String> getHomeUsingHomeOwnerUUID(String homeowner_uuid, String homeName) {
+    public CompletableFuture<HashMap<String, String>> getHomeInviteList(String invitedPlayer_uuid) {
+        return CompletableFuture.supplyAsync(() -> {
+            HashMap<String, String> invitedHomesHashMap = new HashMap<>();
 
-        List<String> home = new ArrayList<>();
-
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs;
-        try {
-            conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + homesTable + " WHERE player_uuid = '"+homeowner_uuid+"' AND home_name LIKE '"+homeName+"';");
-
-            rs = ps.executeQuery();
-            while(rs.next()){
-                home.add(rs.getString("world"));
-                home.add(rs.getString("x"));
-                home.add(rs.getString("y"));
-                home.add(rs.getString("z"));
-                home.add(rs.getString("yaw"));
-                home.add(rs.getString("pitch"));
-            }
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs;
             try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
+                conn = getSQLConnection();
+                ps = conn.prepareStatement("SELECT * FROM " + invitesTable + " WHERE invited_player_uuid = '"+invitedPlayer_uuid+"';");
+
+                rs = ps.executeQuery();
+                while(rs.next()){
+                    invitedHomesHashMap.put(rs.getString("home_name"), uuidFetcher.getPlayerNameFromUUID(rs.getString("homeowner_uuid")).join());
+                }
             } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            } finally {
+                try {
+                    if (ps != null)
+                        ps.close();
+                    if (conn != null)
+                        conn.close();
+                } catch (SQLException ex) {
+                    plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                }
             }
-        }
-        return home;
+            return invitedHomesHashMap;
+        });
+    }
+
+    public CompletableFuture<List<String>> getHomeUsingHomeownerUUID(String homeowner_uuid, String homeName) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<String> home = new ArrayList<>();
+
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs;
+            try {
+                conn = getSQLConnection();
+                ps = conn.prepareStatement("SELECT * FROM " + homesTable + " WHERE player_uuid = '"+homeowner_uuid+"' AND home_name LIKE '"+homeName+"';");
+
+                rs = ps.executeQuery();
+                while(rs.next()){
+                    home.add(rs.getString("world"));
+                    home.add(rs.getString("x"));
+                    home.add(rs.getString("y"));
+                    home.add(rs.getString("z"));
+                    home.add(rs.getString("yaw"));
+                    home.add(rs.getString("pitch"));
+                }
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            } finally {
+                try {
+                    if (ps != null)
+                        ps.close();
+                    if (conn != null)
+                        conn.close();
+                } catch (SQLException ex) {
+                    plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                }
+            }
+            return home;
+        });
         //Check all instances where the invited_player_uuid, homeowner_uuid, and the home_name is the same.
         //If the homeowner_uuid, invited player, and home name match, then teleport.
         //However, if they do not match, check for the publicity status.
         //If it is true, teleport, otherwise do not teleport.
     }
 
-    public List<String> getInvitedHomesList(String homeowner_uuid, String invitedPlayer_uuid) {
+    public CompletableFuture<List<String>> getInvitedHomesThatAreOwnedByHomeowner(String homeowner_uuid, String invitedPlayer_uuid) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<String> invitedHomesList = new ArrayList<>();
 
-        List<String> invitedHomesList = new ArrayList<>();
-
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs;
-        try {
-            conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + invitesTable + " WHERE invited_player_uuid = '"+invitedPlayer_uuid+"' AND homeowner_uuid = '"+homeowner_uuid+"';");
-
-            rs = ps.executeQuery();
-            while(rs.next()){
-                invitedHomesList.add(rs.getString("home_name"));
-            }
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs;
             try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
-        }
-        return invitedHomesList;
+                conn = getSQLConnection();
+                ps = conn.prepareStatement("SELECT * FROM " + invitesTable + " WHERE invited_player_uuid = '"+invitedPlayer_uuid+"' AND homeowner_uuid = '"+homeowner_uuid+"';");
 
+                rs = ps.executeQuery();
+                while(rs.next()){
+                    invitedHomesList.add(rs.getString("home_name"));
+                }
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            } finally {
+                try {
+                    if (ps != null)
+                        ps.close();
+                    if (conn != null)
+                        conn.close();
+                } catch (SQLException ex) {
+                    plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                }
+            }
+            return invitedHomesList;
+        });
     }
 
-    public List<String> getHomePrivacyStatus(String homeowner_uuid, String homeName) {
+    public CompletableFuture<List<String>> getHomePrivacyStatus(String homeowner_uuid, String homeName) {
+        return CompletableFuture.supplyAsync(() -> {
+            ArrayList<String> privacy_status = new ArrayList<>();
 
-        ArrayList<String> privacy_status = new ArrayList<>();
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs;
+            try {
+                conn = getSQLConnection();
+                ps = conn.prepareStatement("SELECT * FROM " + homesTable + " WHERE player_uuid = '"+homeowner_uuid+"' AND home_name LIKE '"+homeName+"';");
 
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs;
-        try {
-            conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + homesTable + " WHERE player_uuid = '"+homeowner_uuid+"' AND home_name LIKE '"+homeName+"';");
-
-            rs = ps.executeQuery();
-            while(rs.next()) {
-                privacy_status.add(rs.getString("privacy_status"));
+                rs = ps.executeQuery();
+                while(rs.next()) {
+                    if (rs.getString("privacy_status").equals("1")) {
+                        privacy_status.add("public");
+                    } else {
+                        privacy_status.add("private");
+                    }
+                }
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            } finally {
+                try {
+                    if (ps != null)
+                        ps.close();
+                    if (conn != null)
+                        conn.close();
+                } catch (SQLException ex) {
+                    plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                }
             }
+            return privacy_status;
+        });
+    }
+
+    public void importOldMyHomeDatabase(File file, MyHomes plugin) throws SQLException {
+
+        Connection conn = DriverManager.getConnection("jdbc:sqlite:" + file);
+        Statement ps = conn.createStatement();
+
+        try {
+            ResultSet rs = ps.executeQuery("SELECT * FROM homeTable");
+                while (rs.next()) {
+                    setHomeColumnsFromOldDatabase(uuidFetcher.getOfflinePlayerUUID(rs.getString("name")).join(), "Home", rs.getString("world"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"), rs.getFloat("yaw"), rs.getFloat("pitch"), rs.getBoolean("publicAll"));
+
+                    String[] elements = rs.getString("permissions").split(",");
+                    List<String> inviteList = Arrays.asList(elements);
+
+                    if (!rs.getString("permissions").isEmpty()) {
+                        for (String invitedPlayer : inviteList) {
+                            setInviteColumnsFromOldDatabase(uuidFetcher.getOfflinePlayerUUID(rs.getString("name")).join(), "Home", uuidFetcher.getOfflinePlayerUUID(invitedPlayer).join());
+                            plugin.getLogger().info("Imported invite: [ Homeowner UUID: " + uuidFetcher.getOfflinePlayerUUID(rs.getString("name")).join() + ", Home Name: Home, Invited Player: " + uuidFetcher.getOfflinePlayerUUID(invitedPlayer).join());
+                        }
+                    } else {
+                        inviteList = List.of("No invites.");
+                    }
+
+                    plugin.getLogger().info("Imported home: [ Homeowner Name: " + rs.getString("name") + ", Homeowner UUID: " + uuidFetcher.getOfflinePlayerUUID(rs.getString("name")).join() + ", Home Name: Home, World: " + rs.getString("world") + ", X: " + rs.getDouble("x") + ", Y: " + rs.getDouble("y") + ", Z: " + rs.getDouble("z") + ", Yaw: " + rs.getFloat("yaw") + ", Pitch: " + rs.getFloat("pitch") + ", Privacy Status: " + rs.getBoolean("publicAll") + ", Invites: " + inviteList +" ]");
+                }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
         } finally {
@@ -485,7 +655,61 @@ public abstract class Database {
                 plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
             }
         }
-        return privacy_status;
+    }
+
+    public void setHomeColumnsFromOldDatabase(String playerUUID, String homeName, String worldName, Double x, Double y, Double z, Float yaw, Float pitch, Boolean privacy_status) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = getSQLConnection();
+            ps = conn.prepareStatement("REPLACE INTO " + homesTable + " (player_uuid,home_name,world,x,y,z,yaw,pitch,privacy_status) VALUES(?,?,?,?,?,?,?,?,?)"); // IMPORTANT. In SQLite class, We made 3 colums. player, Kills, Total.
+            ps.setString(1, playerUUID);
+            ps.setString(2, homeName);
+            ps.setString(3, worldName);
+            ps.setDouble(4, x);
+            ps.setDouble(5, y);
+            ps.setDouble(6, z);
+            ps.setFloat(7, yaw);
+            ps.setFloat(8, pitch);
+            ps.setBoolean(9, privacy_status);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
+    public void setInviteColumnsFromOldDatabase(String homeOwnerUUID, String homeName, String invitedPlayerUUID) {
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = getSQLConnection();
+            ps = conn.prepareStatement("REPLACE INTO " + invitesTable + " (invited_player_uuid,homeowner_uuid,home_name) VALUES(?,?,?)");
+            ps.setString(1, invitedPlayerUUID);
+            ps.setString(2, homeOwnerUUID);
+            ps.setString(3, homeName);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
     }
 
     public void close(PreparedStatement ps,ResultSet rs){

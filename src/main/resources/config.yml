@@ -1,1 +1,4 @@
 #Config File for MyHomes
+
+#Should players respawn to their default home?
+respawnToHome: true

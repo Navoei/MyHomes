@@ -23,10 +23,12 @@ public class SetHomeCommand implements CommandExecutor {
             return true;
         }
 
+
+
         if (args.length == 1) {
 
-            if (!MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).isEmpty()) {
-                String homeName = MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).get(0);
+            if (!MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).join().isEmpty()) {
+                String homeName = MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).join().get(0);
                 MyHomes.getInstance().getRDatabase().updateHomeLocation(player, homeName);
                 player.sendMessage("Your home has been updated with a new location.");
                 return true;
@@ -43,7 +45,7 @@ public class SetHomeCommand implements CommandExecutor {
             return true;
         }
 
-        if (!MyHomes.getInstance().getRDatabase().getHomeInfo(player, "Home").isEmpty()) {
+        if (!MyHomes.getInstance().getRDatabase().getHomeInfo(player, "Home").join().isEmpty()) {
             MyHomes.getInstance().getRDatabase().updateHomeLocation(player, "Home");
             player.sendMessage("Your home has been updated with a new location.");
             return true;

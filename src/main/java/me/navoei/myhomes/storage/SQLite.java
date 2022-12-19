@@ -15,7 +15,7 @@ public class SQLite extends Database {
     String dbname;
     public SQLite(MyHomes instance){
         super(instance);
-        dbname = plugin.getConfig().getString("SQLite.myHomesDatabase", "homes"); // Set the table name here e.g player_kills
+        dbname = plugin.getConfig().getString("SQLite.myHomesDatabase", "myhomes"); // Set the table name here e.g player_kills
     }
     // make sure to put your table name in here too.
     // This creates the different colums you will save data too. varchar(32) Is a string, int = integer

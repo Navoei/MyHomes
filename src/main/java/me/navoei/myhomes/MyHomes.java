@@ -1,5 +1,6 @@
 package me.navoei.myhomes;
 
+import me.navoei.myhomes.commands.admin.*;
 import me.navoei.myhomes.commands.player.*;
 import me.navoei.myhomes.storage.Database;
 import me.navoei.myhomes.storage.SQLite;
@@ -12,21 +13,27 @@ public final class MyHomes extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
+            // Plugin startup logic
 
-        MyHomes.instance = this;
+            MyHomes.instance = this;
 
-        this.saveDefaultConfig();
+            this.saveDefaultConfig();
 
-        this.database = new SQLite(this);
-        this.database.load();
 
-        getCommand("sethome").setExecutor(new SetHomeCommand());
-        getCommand("listhomes").setExecutor(new ListHomesCommand());
-        getCommand("homeinfo").setExecutor(new HomeInfoCommand());
-        getCommand("managehome").setExecutor(new ManageHomeCommand());
-        getCommand("deletehome").setExecutor(new DeleteHomeCommand());
-        getCommand("home").setExecutor(new HomeCommand());
+
+            this.database = new SQLite(this);
+            this.database.load();
+
+            getCommand("sethome").setExecutor(new SetHomeCommand());
+            getCommand("listhomes").setExecutor(new ListHomesCommand());
+            getCommand("managehome").setExecutor(new ManageHomeCommand());
+            getCommand("deletehome").setExecutor(new DeleteHomeCommand());
+            getCommand("home").setExecutor(new HomeCommand());
+            getCommand("invitelist").setExecutor(new ListInvitesCommand());
+            getCommand("importolddatabase").setExecutor(new ImportMyHomeCommand());
+            getCommand("listplayerhomes").setExecutor(new ListPlayerHomesCommand());
+            getCommand("listplayerinvites").setExecutor(new ListPlayerInvitesCommand());
+            getCommand("manageplayerhome").setExecutor(new ManagePlayerHomeCommand());
 
     }
 
@@ -58,7 +65,7 @@ Player Commands:
 
 /managehome <homename> <invite/uninvite> <player>
 /managehome <homename> <privacy> <public/private>
-/managehome <homename> invitelist shows players that are invited to the home
+/managehome <homename> listinvites shows players that are invited to the home
 
 /listhomes Lists all of the player's homes.
 /homelist
@@ -72,13 +79,13 @@ Player Commands:
 /homeinfo <homename> Lists the home's information.
 
 Admin Commands: (Some commands could be put without spaces to reduce conflicts.)
-/manageplayerhomes <player> <homename> <invite/uninvite> <player>
-/manageplayerhomes <player> <homename> <privacy> <public/private>
-/manageplayerhomes <player> <homename> delete
-/manageplayerhomes <player> <homename> invitelist
-/manageplayerhomes <player> <homename> info Shows information such as who is invited, public/private status, and location.
-/manageplayerhomes <player> <homename> set
-/manageplayerhomes <player> <homename> Go to a player's home regardless of invites or privacy status.
+/manageplayerhome <player> <homename> <invite/uninvite> <player>
+/manageplayerhome <player> <homename> <privacy> <public/private>
+/manageplayerhome <player> <homename> set <homename>
+/manageplayerhome <player> <homename> delete
+/manageplayerhome <player> <homename> invitelist
+/manageplayerhome <player> <homename> info Shows information such as who is invited, public/private status, and location.
+/manageplayerhome <player> <homename> Teleport to a player's home regardless of invites or privacy status.
 
 /showhomelist <player> Lists the player's homes.
 

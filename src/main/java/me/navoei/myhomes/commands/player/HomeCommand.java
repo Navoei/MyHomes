@@ -40,23 +40,30 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
         // Then check if the home's invited players list contains the player's name.
         // If so, get the home info and teleport the player.
         // /home <otherplayer> <theirhome>
-        if (args.length>0 && uuidFetcher.checkPlayedBefore(args[0]) && !MyHomes.getInstance().getRDatabase().getHomeList(player).contains(args[0])) {
+        if (args.length>0 && !MyHomes.getInstance().getRDatabase().getHomeList(player).join().toString().toLowerCase().contains(args[0].toLowerCase())) {
 
             List<String> home;
             List<String> homeInvitedPlayers;
             List<String> homePrivacyStatus;
 
             if (args.length == 1) {
-                home = MyHomes.getInstance().getRDatabase().getHomeUsingHomeOwnerUUID(uuidFetcher.getOfflinePlayerUUID(args[0]), "Home");
-                homeInvitedPlayers = MyHomes.getInstance().getRDatabase().getHomeInvitedPlayers(uuidFetcher.getOfflinePlayerUUID(args[0]), "Home");
-                homePrivacyStatus = MyHomes.getInstance().getRDatabase().getHomePrivacyStatus(uuidFetcher.getOfflinePlayerUUID(args[0]), "Home");
+                home = MyHomes.getInstance().getRDatabase().getHomeUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(args[0]).join(), "Home").join();
+                homeInvitedPlayers = MyHomes.getInstance().getRDatabase().getHomeInvitedPlayers(uuidFetcher.getOfflinePlayerUUID(args[0]).join(), "Home").join();
+                homePrivacyStatus = MyHomes.getInstance().getRDatabase().getHomePrivacyStatus(uuidFetcher.getOfflinePlayerUUID(args[0]).join(), "Home").join();
 
                 if (home.isEmpty()) {
                     player.sendMessage("This home does not exist.");
                     return true;
                 }
 
-                if (homeInvitedPlayers.contains(player.getName())) {
+                if (homePrivacyStatus.contains("public")) {
+                    World world = MyHomes.getInstance().getServer().getWorld(home.get(0));
+                    Location homeLocation = new Location(world, Double.parseDouble(home.get(1)), Double.parseDouble(home.get(2)), Double.parseDouble(home.get(3)), Float.parseFloat(home.get(4)), Float.parseFloat(home.get(5)));
+
+                    player.teleport(homeLocation);
+                    player.sendMessage("Welcome to " + args[0] + "'s home.");
+                    return true;
+                } else if (homeInvitedPlayers.contains(player.getName())) {
                     World world = MyHomes.getInstance().getServer().getWorld(home.get(0));
                     Location homeLocation = new Location(world, Double.parseDouble(home.get(1)), Double.parseDouble(home.get(2)), Double.parseDouble(home.get(3)), Float.parseFloat(home.get(4)), Float.parseFloat(home.get(5)));
 
@@ -67,31 +74,33 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
                     player.sendMessage("You are not invited to " + args[0] + "'s home.");
                     return true;
                 }
-
-                if (homePrivacyStatus.contains("true")) {
-                    World world = MyHomes.getInstance().getServer().getWorld(home.get(0));
-                    Location homeLocation = new Location(world, Double.parseDouble(home.get(1)), Double.parseDouble(home.get(2)), Double.parseDouble(home.get(3)), Float.parseFloat(home.get(4)), Float.parseFloat(home.get(5)));
-
-                    player.teleport(homeLocation);
-                    player.sendMessage("Welcome to " + args[0] + "'s home.");
-                    return true;
-                } else if (homePrivacyStatus.contains("false")) {
-                    player.sendMessage("You cannot teleport to " + args[0] + "'s home, as it is private.");
-                    return true;
-                }
             }
 
             if (args.length == 2) {
-                home = MyHomes.getInstance().getRDatabase().getHomeUsingHomeOwnerUUID(uuidFetcher.getOfflinePlayerUUID(args[0]), args[1]);
-                homeInvitedPlayers = MyHomes.getInstance().getRDatabase().getHomeInvitedPlayers(uuidFetcher.getOfflinePlayerUUID(args[0]), args[1]);
-                homePrivacyStatus = MyHomes.getInstance().getRDatabase().getHomePrivacyStatus(uuidFetcher.getOfflinePlayerUUID(args[0]), args[1]);
+                home = MyHomes.getInstance().getRDatabase().getHomeUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(args[0]).join(), args[1]).join();
+                homeInvitedPlayers = MyHomes.getInstance().getRDatabase().getHomeInvitedPlayers(uuidFetcher.getOfflinePlayerUUID(args[0]).join(), args[1]).join();
+                homePrivacyStatus = MyHomes.getInstance().getRDatabase().getHomePrivacyStatus(uuidFetcher.getOfflinePlayerUUID(args[0]).join(), args[1]).join();
 
                 if (home.isEmpty()) {
                     player.sendMessage("This home does not exist.");
                     return true;
                 }
 
-                if (homeInvitedPlayers.contains(player.getName())) {
+                if (homePrivacyStatus.contains("public")) {
+                    List<String> otherPlayerHome = MyHomes.getInstance().getRDatabase().getHomeUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(args[0]).join(), args[1]).join();
+
+                    World world = MyHomes.getInstance().getServer().getWorld(otherPlayerHome.get(0));
+                    Location homeLocation = new Location(world, Double.parseDouble(otherPlayerHome.get(1)), Double.parseDouble(otherPlayerHome.get(2)), Double.parseDouble(otherPlayerHome.get(3)), Float.parseFloat(otherPlayerHome.get(4)), Float.parseFloat(otherPlayerHome.get(5)));
+
+                    player.teleport(homeLocation);
+                    if (args[1].equalsIgnoreCase("home")) {
+                        player.sendMessage("Welcome to " + args[0] + "'s home.");
+                    } else {
+                        player.sendMessage("Welcome to " + args[1] + ".");
+                    }
+
+                    return true;
+                } else if (homeInvitedPlayers.contains(player.getName())) {
                     World world = MyHomes.getInstance().getServer().getWorld(home.get(0));
                     Location homeLocation = new Location(world, Double.parseDouble(home.get(1)), Double.parseDouble(home.get(2)), Double.parseDouble(home.get(3)), Float.parseFloat(home.get(4)), Float.parseFloat(home.get(5)));
 
@@ -113,35 +122,11 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
                     }
                     return true;
                 }
-
-                if (homePrivacyStatus.contains("true")) {
-                    List<String> otherPlayerHome = MyHomes.getInstance().getRDatabase().getHomeUsingHomeOwnerUUID(uuidFetcher.getOfflinePlayerUUID(args[0]), args[1]);
-
-                    World world = MyHomes.getInstance().getServer().getWorld(otherPlayerHome.get(0));
-                    Location homeLocation = new Location(world, Double.parseDouble(otherPlayerHome.get(1)), Double.parseDouble(otherPlayerHome.get(2)), Double.parseDouble(otherPlayerHome.get(3)), Float.parseFloat(otherPlayerHome.get(4)), Float.parseFloat(otherPlayerHome.get(5)));
-
-                    player.teleport(homeLocation);
-                    if (args[1].equalsIgnoreCase("home")) {
-                        player.sendMessage("Welcome to " + args[0] + "'s home.");
-                    } else {
-                        player.sendMessage("Welcome to " + args[1] + ".");
-                    }
-
-                    return true;
-                } else if (homePrivacyStatus.contains("false")) {
-
-                    if (args[1].equalsIgnoreCase("home")) {
-                        player.sendMessage("You cannot teleport to " + args[0] + "'s home, as it is private.");
-                    } else {
-                        player.sendMessage("You cannot teleport to " + args[1] + ", as is private.");
-                    }
-                    return true;
-                }
             }
         }
 
         if (args.length == 0) {
-            List<String> home = MyHomes.getInstance().getRDatabase().getHome(player, "Home");
+            List<String> home = MyHomes.getInstance().getRDatabase().getHome(player, "Home").join();
             if (home.isEmpty()) {
                 player.sendMessage("You do not have a home.");
                 return true;
@@ -154,7 +139,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
             player.sendMessage("Welcome to your home.");
             return true;
         } else if (args.length == 1) {
-            List<String> home = MyHomes.getInstance().getRDatabase().getHome(player, args[0]);
+            List<String> home = MyHomes.getInstance().getRDatabase().getHome(player, args[0]).join();
             if (home.isEmpty()) {
                 player.sendMessage("This home does not exist.");
                 return true;
@@ -163,13 +148,13 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
             World world = MyHomes.getInstance().getServer().getWorld(home.get(0));
             Location homeLocation = new Location(world, Double.parseDouble(home.get(1)), Double.parseDouble(home.get(2)), Double.parseDouble(home.get(3)), Float.parseFloat(home.get(4)), Float.parseFloat(home.get(5)));
 
-            String homeName = MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).get(0);
+            String homeName = MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).join().get(0);
 
             player.teleport(homeLocation);
             player.sendMessage("Welcome to " + homeName + ".");
             return true;
         } else {
-            player.sendMessage("Invalid arguments.");
+            player.sendMessage("This home does not exist.");
             return false;
         }
 
@@ -184,8 +169,8 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
 
         Player player = (Player) sender;
 
-        List<String> homesList = MyHomes.getInstance().getRDatabase().getHomeList(player);
-        homesList.addAll(MyHomes.getInstance().getRDatabase().listHomeownersOfInvitedHomes(player));
+        List<String> homesList = MyHomes.getInstance().getRDatabase().getHomeList(player).join();
+        homesList.addAll(MyHomes.getInstance().getRDatabase().listHomeownersOfInvitedHomes(player).join());
 
         List<String> tabCompletions = new ArrayList<>();
 
@@ -194,8 +179,9 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
             Collections.sort(tabCompletions);
             return tabCompletions;
         }
-        if (args.length == 2 && uuidFetcher.checkPlayedBefore(args[0]) && !MyHomes.getInstance().getRDatabase().getHomeList(player).contains(args[0])) {
-            List<String> invitedHomesList = MyHomes.getInstance().getRDatabase().getInvitedHomesList(uuidFetcher.getOfflinePlayerUUID(args[0]), player.getUniqueId().toString());
+
+        if (!args[0].isEmpty() && args.length == 2 && !MyHomes.getInstance().getRDatabase().getHomeList(player).join().contains(args[0]) && MyHomes.getInstance().getRDatabase().getHomeInviteList(player.getUniqueId().toString()).join().containsValue(args[0])) {
+            List<String> invitedHomesList = MyHomes.getInstance().getRDatabase().getInvitedHomesThatAreOwnedByHomeowner(uuidFetcher.getOfflinePlayerUUID(args[0]).join(), player.getUniqueId().toString()).join();
             StringUtil.copyPartialMatches(args[1], invitedHomesList, tabCompletions);
             Collections.sort(tabCompletions);
             return tabCompletions;

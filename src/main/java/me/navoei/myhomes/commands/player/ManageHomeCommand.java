@@ -18,7 +18,7 @@ import java.util.List;
 public class ManageHomeCommand implements CommandExecutor, TabCompleter {
 
     Fetcher uuidFetcher = new Fetcher();
-    private final String[] SUB_COMMANDS = { "invite", "uninvite", "invitelist", "privacy" };
+    private final String[] SUB_COMMANDS = { "invite", "uninvite", "listinvites", "privacy", "info" };
     private final String[] PRIVACY_STATUS_OPTIONS = { "private", "public" };
 
     @Override
@@ -39,12 +39,12 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
 
         Player player = (Player) sender;
 
-        if (MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).isEmpty()) {
+        if (MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).join().isEmpty()) {
             player.sendMessage("This home does not exist.");
             return true;
         }
 
-        String homeName = MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).get(0);
+        String homeName = MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).join().get(0);
 
         if (args[1].equalsIgnoreCase("invite")) {
 
@@ -60,7 +60,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            if (uuidFetcher.checkPlayedBefore(args[2])) {
+            if (uuidFetcher.checkPlayedBefore(args[2]).join()) {
 
                 if (MyHomes.getInstance().getRDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName).toString().toLowerCase().contains(playerName.toLowerCase())) {
                     if (homeName.equals("Home")) {
@@ -71,13 +71,18 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
 
-                MyHomes.getInstance().getRDatabase().setInviteColumns(player, homeName, uuidFetcher.getOfflinePlayerUUID(playerName));
+                MyHomes.getInstance().getRDatabase().setInviteColumns(player, homeName, uuidFetcher.getOfflinePlayerUUID(playerName).join());
 
+                if (homeName.equals("Home")) {
+                    player.sendMessage("The player "+ playerName +" has been invited to your home.");
+                } else {
+                    player.sendMessage("The player "+ playerName +" has been invited to " + homeName + ".");
+                }
             } else {
                 player.sendMessage("The player "+playerName+" has never logged on before.");
-                return true;
             }
             return true;
+
         } else if (args[1].equalsIgnoreCase("uninvite")) {
 
             if (args.length != 3) {
@@ -92,9 +97,24 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            MyHomes.getInstance().getRDatabase().deleteInviteColumns(player, homeName, uuidFetcher.getOfflinePlayerUUID(playerName));
+            if (!MyHomes.getInstance().getRDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName).toString().toLowerCase().contains(playerName.toLowerCase())) {
+                if (homeName.equals("Home")) {
+                    player.sendMessage("The player "+ playerName +" has not been invited to your home.");
+                } else {
+                    player.sendMessage("The player "+ playerName +" has not been invited to " + homeName + ".");
+                }
+                return true;
+            }
 
-        } else if (args[1].equalsIgnoreCase("invitelist")) {
+            MyHomes.getInstance().getRDatabase().deleteInviteColumns(player, homeName, uuidFetcher.getOfflinePlayerUUID(playerName).join());
+
+            if (homeName.equals("Home")) {
+                player.sendMessage("The player "+ playerName +" has been uninvited to your home.");
+            } else {
+                player.sendMessage("The player "+ playerName +" has been uninvited to " + homeName + ".");
+            }
+
+        } else if (args[1].equalsIgnoreCase("listinvites")) {
 
             if (args.length != 2) {
                 sender.sendMessage("Invalid arguments.");
@@ -102,6 +122,14 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
             }
 
             player.sendMessage(MyHomes.getInstance().getRDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName).toString());
+        } else if (args[1].equalsIgnoreCase("info")) {
+
+            if (args.length != 2) {
+                sender.sendMessage("Invalid arguments.");
+                return true;
+            }
+
+            player.sendMessage(MyHomes.getInstance().getRDatabase().getHomeInfo(player, homeName).toString());
         } else if (args[1].equalsIgnoreCase("privacy")) {
 
             if (args.length != 3) {
@@ -133,7 +161,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
 
         Player player = (Player) sender;
 
-        List<String> homeList = MyHomes.getInstance().getRDatabase().getHomeList(player);
+        List<String> homeList = MyHomes.getInstance().getRDatabase().getHomeList(player).join();
         List<String> subCommands = new ArrayList<>(Arrays.asList(SUB_COMMANDS));
         List<String> privacyStatusOptions = new ArrayList<>(Arrays.asList(PRIVACY_STATUS_OPTIONS));
         List<String> tabCompletions = new ArrayList<>();
@@ -144,8 +172,8 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
             return tabCompletions;
         }
 
-        if (args.length >= 2 && MyHomes.getInstance().getRDatabase().getHome(player, args[0]).isEmpty()) {
-            return new ArrayList<>(List.of("Unknown home: " + args[0]));
+        if (args.length >= 2 && MyHomes.getInstance().getRDatabase().getHome(player, args[0]).join().isEmpty()) {
+            return null;
         }
 
         if (args.length == 2) {
@@ -169,8 +197,8 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
 
             } else if (args[1].equalsIgnoreCase("uninvite")) {
 
-                String homeName = MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).get(0);
-                List<String> invitedPlayersList = MyHomes.getInstance().getRDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName);
+                String homeName = MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).join().get(0);
+                List<String> invitedPlayersList = MyHomes.getInstance().getRDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName).join();
 
                 StringUtil.copyPartialMatches(args[2], invitedPlayersList, tabCompletions);
                 Collections.sort(tabCompletions);

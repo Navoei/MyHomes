@@ -29,7 +29,7 @@ public class DeleteHomeCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        String homeName = MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).get(0);
+        String homeName = MyHomes.getInstance().getRDatabase().getHomeInfo(player, args[0]).join().get(0);
 
         if (homeName.isEmpty()) {
             player.sendMessage("This home does not exist.");
@@ -57,7 +57,7 @@ public class DeleteHomeCommand implements CommandExecutor, TabCompleter {
 
         Player player = (Player) sender;
 
-        List<String> homeList = MyHomes.getInstance().getRDatabase().getHomeList(player);
+        List<String> homeList = MyHomes.getInstance().getRDatabase().getHomeList(player).join();
         List<String> tabCompletions = new ArrayList<>();
 
         if (!homeList.isEmpty() && args.length == 1) {
