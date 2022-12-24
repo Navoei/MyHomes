@@ -1,0 +1,92 @@
+# ------------------------------------------------------------------------------
+# |   [MyHomes Messages File]                                                  |
+# |   Only commands containing a placeholder support that placeholder.         |
+# |   Making changes to this messages file may cause errors.                   |
+# |   It is highly recommended that a backup is created before modification.   |
+# ------------------------------------------------------------------------------
+
+#Prefix of the plugin.
+prefix: "&8[&bMyHomes&8] &7»&r"
+
+#No Permission:
+nopermission: "&cYou do not have permission to execute this command."
+
+#Command execution
+onlyplayerscommand: "&cOnly players can execute this command."
+onlyconsolecommand: "&cOnly console can execute this command."
+
+#Database Conversion
+olddatabasenotexist: "&cOld database does not exist."
+importingdatabase: "&aOld database found. Importing now..."
+databaseimporterror: "&cAn error occurred while importing the database."
+databaseimportsuccess: "&aImport successful! You may now delete the old database."
+
+#Too many or invalid arguments.
+toomanyarguments: "&cToo many arguments."
+notenougharguments: "&cNot enough arguments."
+invalidarguments: "&cInvalid arguments."
+
+#Teleporting to a home.
+home: "&aWelcome to your home."
+homeother: "&aWelcome to %player%'s home."
+homespecified: "&aWelcome to %home%."
+homenotexist: "&cThis home does not exist."
+playerhasnohome: "&cYou do not have a home."
+playernotinvited: "&cYou are not invited to %player%'s home."
+playernotinvitedspecified: "&cYou are not invited to %home%."
+
+#Setting a home.
+sethome: "&aYour home has been set."
+sethomespecified: "&aYour home, %home%, has been set."
+homeupdated: "&aYour home has been updated with a new location."
+specifiedhomeupdated: "&aYour home, %home%, has been updated with a new location."
+
+#Deleting a home.
+deletehome: "&aYour home has been deleted."
+deletespecifiedhome: "&aYour home, %home%, has been deleted."
+
+#Inviting players to home.
+invitedtodefaulthome: "&aThe player %player% has been invited to your home."
+invitedtospecifiedhome: "&aThe player %player% has been invited to %home%."
+uninvitedfromdefaulthome: "&aThe player %player% has been uninvited from your home."
+uninvitedfromspecifiedhome: "&aThe player %player% has been uninvited from %home%."
+alreadyinvitedtodefaulthome: "&cThe player %player% is already invited to your home."
+alreadyinvitedtospecifiedhome: "&cThe player %player% is already invited to %home%."
+notinvitedtodefaulthome: "&cThe player %player% has not been invited to your home."
+notinvitedtospecifiedhome: "&cThe player %player% has not been invited to %home%."
+cannotinviteself: "&cYou cannot invite yourself."
+cannotuninviteself: "&cYou cannot uninvite yourself."
+playerhasneverloggedon: "&cThe player %player% has never joined the server."
+
+#Updating the privacy status.
+defaulthomepublic: "&aYou have changed the privacy status of your home to public."
+defaulthomeprivate: "&aYou have changed the privacy status of your home to private."
+specifiedhomepublic: "&aYou have changed the privacy status of %home% to public."
+specifiedhomeprivate: "&aYou have changed the privacy status of %home% to private."
+
+#Showing Home information
+homeinfo:
+  - "&8---[ &bHome Information &8]---"
+  - "&7Name: &a%home_name%"
+  - "&7x: &a%home_x%"
+  - "&7Y: &a%home_y%"
+  - "&7Z: &a%home_z%"
+  - "&7World: &a%home_world%"
+  - "&7Privacy: &a%privacy_status%"
+  - "&8--------------------------"
+
+#Listing homes and invites.
+listhomes:
+  - "&8---[ &bMy Homes &8]---"
+  - "&a%homes_list%"
+  - "&8----------------"
+listinvites:
+  - "&8------[ &bMy Invites &8]------"
+  - "&7 - &2%homeowner%: &a%homes_list%"
+  - "&8-----------------------"
+listinvitestohome:
+  - "&8----[ &bInvites to %home% &8]----"
+  - "&a%invites_list%"
+  - "&8---------------------------"
+
+#Managing player homes (admin).

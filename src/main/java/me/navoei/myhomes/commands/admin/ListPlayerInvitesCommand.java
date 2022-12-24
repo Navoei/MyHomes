@@ -22,7 +22,7 @@ public class ListPlayerInvitesCommand implements CommandExecutor {
             return true;
         }
 
-        sender.sendMessage(MyHomes.getInstance().getRDatabase().getHomeInviteList(uuidFetcher.getOfflinePlayerUUID(args[0]).join()).join().toString());
+        sender.sendMessage(MyHomes.getInstance().getRDatabase().getHomeInviteList(uuidFetcher.getOfflinePlayerUUID(args[0])).join().toString());
 
         return true;
     }

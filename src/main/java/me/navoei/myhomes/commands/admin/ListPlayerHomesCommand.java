@@ -22,7 +22,7 @@ public class ListPlayerHomesCommand implements CommandExecutor {
             return true;
         }
 
-        sender.sendMessage(MyHomes.getInstance().getRDatabase().getHomeListUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(args[0]).join()).join().toString());
+        sender.sendMessage(MyHomes.getInstance().getRDatabase().getHomeListUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(args[0])).join().toString());
 
         return false;
     }
