@@ -17,6 +17,11 @@ public class ListHomesCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
+        if (!sender.hasPermission("myhomes.listhomes")) {
+            sender.sendMessage(Lang.PREFIX.toString() + Lang.NO_PERMISSION);
+            return true;
+        }
+
         if (!(sender instanceof Player)) {
             sender.sendMessage("Only players can execute this command!");
             return true;

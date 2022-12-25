@@ -18,6 +18,11 @@ public class ImportMyHomeCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
+        if (!sender.hasPermission("myhomes.importolddatabase")) {
+            sender.sendMessage(Lang.PREFIX.toString() + Lang.NO_PERMISSION);
+            return true;
+        }
+
         if (sender instanceof Player) {
             sender.sendMessage(Lang.PREFIX.toString() + Lang.CONSOLE_ONLY);
             return true;

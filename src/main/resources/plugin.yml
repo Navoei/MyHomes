@@ -7,7 +7,7 @@ authors: [ Navoei ]
 description: A homes plugin with UUID support. Allows players to invite others to their sethome, as well as setting it to be public or private.
 commands:
   importolddatabase:
-    description: Converts old database from MyHome.
+    description: Converts old database from MyHome. Hoewever, this command can only be run from console.
   sethome:
     description: Sets a player's home.
     aliases: homeset
@@ -21,12 +21,29 @@ commands:
     aliases: delhome
   home:
     description: Teleports a player to the specified home.
-  invitelist:
+  listinvites:
     description: Shows homes the player is invited to.
-    aliases: listinvites
+    aliases: invitelist
   listplayerhomes:
     description: Allows admins to list a player's homes.
   listplayerinvites:
     description: Allows admins to list homes a player is invited to.
   manageplayerhome:
     description: Allows admins to manage other player's homes.
+permissions:
+  myhomes.importolddatabase:
+    description: Converts old database from MyHome. However, this command can only be run from console.
+  myhomes.sethome:
+    description: Allows players to set a home.
+  myhomes.listhomes:
+    description: Allows players to list their homes.
+  myhomes.managehome:
+    description: Allows players to manage their homes.
+  myhomes.deletehome:
+    description: Allows players to delete their homes.
+  myhomes.home:
+    description: Allows players to teleport to homes.
+  myhomes.listinvites:
+    description: Allows players to show homes they are invited to.
+  myhomes.manageplayerhome:
+    description: Allows admins to manage other player's homes as well as listing their homes and showing which homes they are invited to.

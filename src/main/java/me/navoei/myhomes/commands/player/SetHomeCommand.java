@@ -16,6 +16,12 @@ public class SetHomeCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        if (!sender.hasPermission("myhomes.sethome")) {
+            sender.sendMessage(Lang.PREFIX.toString() + Lang.NO_PERMISSION);
+            return true;
+        }
+
         if (!(sender instanceof Player)) {
             sender.sendMessage(ChatColor.RED + "Only players can use this command!");
             return true;
@@ -28,49 +34,57 @@ public class SetHomeCommand implements CommandExecutor {
             return true;
         }
 
+        plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
 
+            int maxHomes = plugin.getConfig().getInt("maximumhomes");
 
-        if (args.length == 1) {
+            if (result_homeList.size() >= maxHomes) {
+                player.sendMessage(Lang.PREFIX + Lang.TOO_MANY_HOMES.toString().replace("%maximum_number_of_homes%", Integer.toString(maxHomes)));
+                return;
+            }
 
-            plugin.getRDatabase().getHomeInfo(player, args[0]).thenAccept(result_homeInfo -> {
+            if (args.length == 1) {
 
-               if (!result_homeInfo.isEmpty()) {
-                   String homeName = result_homeInfo.get(0);
-                   scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().updateHomeLocation(player, homeName));
+                plugin.getRDatabase().getHomeInfo(player, args[0]).thenAccept(result_homeInfo -> {
 
-                   if (homeName.equalsIgnoreCase("Home")) {
-                       player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_UPDATED);
-                   } else {
-                       player.sendMessage(Lang.PREFIX + Lang.HOME_SPECIFIED_UPDATED.toString().replace("%home%", homeName));
-                   }
+                    if (!result_homeInfo.isEmpty()) {
+                        String homeName = result_homeInfo.get(0);
+                        scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().updateHomeLocation(player, homeName));
 
-                   return;
-               }
+                        if (homeName.equalsIgnoreCase("Home")) {
+                            player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_UPDATED);
+                        } else {
+                            player.sendMessage(Lang.PREFIX + Lang.HOME_SPECIFIED_UPDATED.toString().replace("%home%", homeName));
+                        }
 
-                if (args[0].equalsIgnoreCase("Home")) {
-                    scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setHomeColumns(player, "Home", false));
-                    player.sendMessage(Lang.PREFIX.toString() + Lang.SET_HOME);
-                } else {
-                    scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setHomeColumns(player, args[0], false));
-                    player.sendMessage(Lang.PREFIX + Lang.SET_HOME_SPECIFIED.toString().replace("%home%", args[0]));
+                        return;
+                    }
+
+                    if (args[0].equalsIgnoreCase("Home")) {
+                        scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setHomeColumns(player, "Home", false));
+                        player.sendMessage(Lang.PREFIX.toString() + Lang.SET_HOME);
+                    } else {
+                        scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setHomeColumns(player, args[0], false));
+                        player.sendMessage(Lang.PREFIX + Lang.SET_HOME_SPECIFIED.toString().replace("%home%", args[0]));
+                    }
+
+                });
+                return;
+            }
+
+            plugin.getRDatabase().getHomeInfo(player, "Home").thenAccept(result_homeInfo -> {
+                if (!result_homeInfo.isEmpty()) {
+                    scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().updateHomeLocation(player, "Home"));
+                    player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_UPDATED);
+                    return;
                 }
 
+                scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setHomeColumns(player, "Home", false));
+                player.sendMessage(Lang.PREFIX.toString() + Lang.SET_HOME);
+
             });
-            return true;
-        }
-
-        plugin.getRDatabase().getHomeInfo(player, "Home").thenAccept(result_homeInfo -> {
-           if (!result_homeInfo.isEmpty()) {
-               scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().updateHomeLocation(player, "Home"));
-               player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_UPDATED);
-               return;
-           }
-
-           scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setHomeColumns(player, "Home", false));
-           player.sendMessage(Lang.PREFIX.toString() + Lang.SET_HOME);
 
         });
-
         return false;
     }
 }

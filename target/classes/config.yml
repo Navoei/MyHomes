@@ -1,4 +1,7 @@
 #Config File for MyHomes
 
+#How many homes can a player set?
+maximumhomes: 3
+
 #Should players respawn to their default home?
 respawnToHome: true

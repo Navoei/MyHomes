@@ -22,6 +22,11 @@ public class DeleteHomeCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
+        if (!sender.hasPermission("myhomes.deletehome")) {
+            sender.sendMessage(Lang.PREFIX.toString() + Lang.NO_PERMISSION);
+            return true;
+        }
+
         if (!(sender instanceof Player)) {
             sender.sendMessage(Lang.PREFIX.toString() + Lang.PLAYER_ONLY);
             return true;
@@ -61,6 +66,10 @@ public class DeleteHomeCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+
+        if (!sender.hasPermission("myhomes.deletehome")) {
+            return null;
+        }
 
         if (!(sender instanceof Player)) {
             return null;

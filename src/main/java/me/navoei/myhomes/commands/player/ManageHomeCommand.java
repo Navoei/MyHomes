@@ -29,6 +29,11 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
+        if (!sender.hasPermission("myhomes.managehome")) {
+            sender.sendMessage(Lang.PREFIX.toString() + Lang.NO_PERMISSION);
+            return true;
+        }
+
         if (!(sender instanceof Player)) {
             sender.sendMessage(Lang.PREFIX.toString() + Lang.PLAYER_ONLY);
             return true;
@@ -82,9 +87,23 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                             if (homeName.equalsIgnoreCase("Home")) {
                                 scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setInviteColumns(player, "Home", uuidFetcher.getOfflinePlayerUUIDFromMojang(playerName).join()));
                                 player.sendMessage(Lang.PREFIX + Lang.INVITED_TO_DEFAULT_HOME.toString().replace("%player%", playerName));
+
+                                Player invitedPlayer = plugin.getServer().getPlayer(playerName);
+
+                                if (invitedPlayer == null) return;
+
+                                invitedPlayer.sendMessage(Lang.PREFIX + Lang.MESSAGE_TO_INVITED_PLAYER_DEFAULT_HOME.toString().replace("%homeowner%", player.getName()));
+
                             } else {
                                 scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setInviteColumns(player, homeName, uuidFetcher.getOfflinePlayerUUIDFromMojang(playerName).join()));
                                 player.sendMessage(Lang.PREFIX + Lang.INVITED_TO_SPECIFIED_HOME.toString().replace("%player%", playerName).replace("%home%", homeName));
+
+                                Player invitedPlayer = plugin.getServer().getPlayer(playerName);
+
+                                if (invitedPlayer == null) return;
+
+                                invitedPlayer.sendMessage(Lang.PREFIX + Lang.MESSAGE_TO_INVITED_PLAYER_SPECIFIED_HOME.toString().replace("%home%", homeName).replace("%homeowner%", player.getName()));
+
                             }
                         }
 
@@ -222,6 +241,10 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+
+        if (!sender.hasPermission("myhomes.managehome")) {
+            return null;
+        }
 
         if (!(sender instanceof Player)) {
             return null;

@@ -33,6 +33,11 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
+        if (!sender.hasPermission("myhomes.manageplayerhome")) {
+            sender.sendMessage(Lang.PREFIX.toString() + Lang.NO_PERMISSION);
+            return true;
+        }
+
         if (args.length > 4) {
             sender.sendMessage(Lang.PREFIX.toString() + Lang.TOO_MANY_ARGUMENTS);
             return true;
@@ -82,9 +87,22 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
                                     if (homeName.equalsIgnoreCase("Home")) {
                                         scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setInviteColumnsUsingHomeownerUUID(result_playerUUID, "Home", uuidFetcher.getOfflinePlayerUUIDFromMojang(invitedPlayerName).join()));
                                         sender.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_INVITED_TO_DEFAULT_HOME.toString().replace("%invited_player%", invitedPlayerName).replace("%homeowner%", playerName));
+
+                                        Player invitedPlayer = plugin.getServer().getPlayer(invitedPlayerName);
+
+                                        if (invitedPlayer == null) return;
+
+                                        invitedPlayer.sendMessage(Lang.PREFIX + Lang.MESSAGE_TO_INVITED_PLAYER_DEFAULT_HOME.toString().replace("%homeowner%", playerName));
+
                                     } else {
                                         scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setInviteColumnsUsingHomeownerUUID(result_playerUUID, homeName, uuidFetcher.getOfflinePlayerUUIDFromMojang(invitedPlayerName).join()));
                                         sender.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_INVITED_TO_SPECIFIED_HOME.toString().replace("%invited_player%", invitedPlayerName).replace("%home%", homeName).replace("%homeowner%", playerName));
+
+                                        Player invitedPlayer = plugin.getServer().getPlayer(invitedPlayerName);
+
+                                        if (invitedPlayer == null) return;
+
+                                        invitedPlayer.sendMessage(Lang.PREFIX + Lang.MESSAGE_TO_INVITED_PLAYER_SPECIFIED_HOME.toString().replace("%home%", homeName).replace("%homeowner%", playerName));
                                     }
                                 }
 
@@ -337,6 +355,10 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onTabCompletion(AsyncTabCompleteEvent event) {
+
+        if (!event.getSender().hasPermission("myhomes.manageplayerhome")) {
+            return;
+        }
 
         if (!event.isCommand()) return;
 

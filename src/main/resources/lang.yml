@@ -40,6 +40,7 @@ sethome: "&aYour home has been set."
 sethomespecified: "&aYour home, %home%, has been set."
 homeupdated: "&aYour home has been updated with a new location."
 specifiedhomeupdated: "&aYour home, %home%, has been updated with a new location."
+toomanyhomes: "&cYou cannot set more than %maximum_number_of_homes% homes."
 
 #Deleting a home.
 deletehome: "&aYour home has been deleted."
@@ -57,6 +58,8 @@ notinvitedtospecifiedhome: "&cThe player, %player%, has not been invited to %hom
 cannotinviteself: "&cYou cannot invite yourself."
 cannotuninviteself: "&cYou cannot uninvite yourself."
 playerhasneverloggedon: "&cThe player, %player%, has never joined the server."
+messagetoinvitedplayerdefaulthome: "&aYou were invited to %homeowner%'s home."
+messagetoinvitedplayerspecifiedhome: "&aYou were invited to %home%, which is owned by %homeowner%."
 
 #Updating the privacy status.
 defaulthomepublic: "&aYou have changed the privacy status of your home to public."
@@ -100,7 +103,7 @@ managehomes_cannotinviteself: "&cThe player, %player%, cannot be invited to thei
 managehomes_playeralreadyinvitedtodefaulthome: "&cThe player, %invited_player%, has already been invited to %homeowner%'s home."
 managehomes_playeralreadyinvitedtospecifiedhome: "&cThe player, %invited_player%, has already been invited to %home%, which is owned by %homeowner%."
 managehomes_invitedtodefaulthome: "&aThe player, %invited_player%, has been invited to %homeowner%'s home."
-managehomes_invitedtospecifiedhome: "&aThe player, %invited_player%, has been invited to the home %home%, which is owned by %homeowner%."
+managehomes_invitedtospecifiedhome: "&aThe player, %invited_player%, has been invited to %home%, which is owned by %homeowner%."
 managehomes_cannotuninviteself: "&cThe player, %player%, cannot be uninvited from their own home."
 managehomes_hasnotbeeninvitedtodefaulthome: "&cThe player, %uninvited_player%, has not been invited to %homeowner%'s home."
 managehomes_hasnotbeeninvitedtospecifiedhome: "&cThe player, %uninvited_player%, has not been invited to %home%, which is owned by %homeowner%."

@@ -38,7 +38,7 @@ public final class MyHomes extends JavaPlugin {
             getCommand("managehome").setExecutor(new ManageHomeCommand());
             getCommand("deletehome").setExecutor(new DeleteHomeCommand());
             getCommand("home").setExecutor(new HomeCommand());
-            getCommand("invitelist").setExecutor(new ListInvitesCommand());
+            getCommand("listinvites").setExecutor(new ListInvitesCommand());
             getCommand("importolddatabase").setExecutor(new ImportMyHomeCommand());
             getCommand("listplayerhomes").setExecutor(new ListPlayerHomesCommand());
             getCommand("listplayerinvites").setExecutor(new ListPlayerInvitesCommand());

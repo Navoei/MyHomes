@@ -20,6 +20,11 @@ public class ListInvitesCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
+        if (!sender.hasPermission("myhomes.listinvites")) {
+            sender.sendMessage(Lang.PREFIX.toString() + Lang.NO_PERMISSION);
+            return true;
+        }
+
         if (!(sender instanceof Player)) {
             sender.sendMessage("Only players can execute this command!");
             return true;
