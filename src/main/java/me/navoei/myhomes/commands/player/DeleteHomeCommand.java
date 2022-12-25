@@ -39,24 +39,63 @@ public class DeleteHomeCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        plugin.getRDatabase().getHomeInfo(player, args[0]).thenAccept(result_homeInfo -> {
-           String homeName = result_homeInfo.get(0);
+        if (args.length == 1) {
 
-           if (homeName.isEmpty()) {
-               player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
-               return;
-           }
+            plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
 
-           scheduler.runTaskAsynchronously(plugin, () -> {
-               plugin.getRDatabase().deleteHome(player, homeName);
-               plugin.getRDatabase().deleteAllInviteColumns(player, homeName);
-           });
+                if (!result_homeList.toString().toLowerCase().contains(args[0].toLowerCase())) {
+                    player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
+                    return;
+                }
 
-            if (homeName.equalsIgnoreCase("home")) {
-                player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_DELETED);
-            } else {
-                player.sendMessage(Lang.PREFIX + Lang.HOME_DELETED_SPECIFIED.toString().replace("%home%", homeName));
+                plugin.getRDatabase().getHomeInfo(player, args[0]).thenAccept(result_homeInfo -> {
+                    String homeName = result_homeInfo.get(0);
+
+                    if (homeName.isEmpty()) {
+                        player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
+                        return;
+                    }
+
+                    scheduler.runTaskAsynchronously(plugin, () -> {
+                        plugin.getRDatabase().deleteHome(player, homeName);
+                        plugin.getRDatabase().deleteAllInviteColumns(player, homeName);
+                    });
+
+                    if (homeName.equalsIgnoreCase("home")) {
+                        player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_DELETED);
+                    } else {
+                        player.sendMessage(Lang.PREFIX + Lang.HOME_DELETED_SPECIFIED.toString().replace("%home%", homeName));
+                    }
+
+                });
+
+            });
+
+            return true;
+        }
+
+        plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
+            if (!result_homeList.toString().toLowerCase().contains("home")) {
+                player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
+                return;
             }
+
+            plugin.getRDatabase().getHomeInfo(player, "Home").thenAccept(result_homeInfo -> {
+                String homeName = result_homeInfo.get(0);
+
+                if (homeName.isEmpty()) {
+                    player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
+                    return;
+                }
+
+                scheduler.runTaskAsynchronously(plugin, () -> {
+                    plugin.getRDatabase().deleteHome(player, homeName);
+                    plugin.getRDatabase().deleteAllInviteColumns(player, homeName);
+                });
+
+                player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_DELETED);
+
+            });
 
         });
 

@@ -38,12 +38,14 @@ public class SetHomeCommand implements CommandExecutor {
 
             int maxHomes = plugin.getConfig().getInt("maximumhomes");
 
-            if (result_homeList.size() >= maxHomes) {
-                player.sendMessage(Lang.PREFIX + Lang.TOO_MANY_HOMES.toString().replace("%maximum_number_of_homes%", Integer.toString(maxHomes)));
-                return;
-            }
+            String exceededHomes = Lang.PREFIX + Lang.TOO_MANY_HOMES.toString().replace("%maximum_number_of_homes%", Integer.toString(maxHomes));
 
             if (args.length == 1) {
+
+                if (result_homeList.size() >= maxHomes && !result_homeList.toString().toLowerCase().contains(args[0].toLowerCase())) {
+                    player.sendMessage(exceededHomes);
+                    return;
+                }
 
                 plugin.getRDatabase().getHomeInfo(player, args[0]).thenAccept(result_homeInfo -> {
 
@@ -69,6 +71,11 @@ public class SetHomeCommand implements CommandExecutor {
                     }
 
                 });
+                return;
+            }
+
+            if (result_homeList.size() >= maxHomes && !result_homeList.toString().toLowerCase().contains("home")) {
+                player.sendMessage(exceededHomes);
                 return;
             }
 
