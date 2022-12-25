@@ -1,5 +1,4 @@
 me\navoei\myhomes\commands\admin\ManagePlayerHomeCommand.class
-me\navoei\myhomes\events\PlayerRespawnEvent.class
 me\navoei\myhomes\commands\player\SetHomeCommand.class
 me\navoei\myhomes\storage\Errors.class
 me\navoei\myhomes\commands\player\ListHomesCommand.class
@@ -13,6 +12,7 @@ me\navoei\myhomes\storage\SQLite.class
 me\navoei\myhomes\commands\player\DeleteHomeCommand.class
 me\navoei\myhomes\language\Lang.class
 me\navoei\myhomes\commands\admin\ListPlayerInvitesCommand.class
+me\navoei\myhomes\events\RespawnEvent.class
 me\navoei\myhomes\commands\admin\ListPlayerHomesCommand.class
 me\navoei\myhomes\uuid\UUIDFetcher.class
 me\navoei\myhomes\commands\admin\ImportMyHomeCommand.class

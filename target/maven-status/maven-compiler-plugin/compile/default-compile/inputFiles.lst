@@ -1,4 +1,3 @@
-C:\Users\Navoei\Documents\GitHub\MyHomes\src\main\java\me\navoei\myhomes\events\PlayerRespawnEvent.java
 C:\Users\Navoei\Documents\GitHub\MyHomes\src\main\java\me\navoei\myhomes\commands\admin\ImportMyHomeCommand.java
 C:\Users\Navoei\Documents\GitHub\MyHomes\src\main\java\me\navoei\myhomes\commands\admin\ListPlayerInvitesCommand.java
 C:\Users\Navoei\Documents\GitHub\MyHomes\src\main\java\me\navoei\myhomes\commands\player\DeleteHomeCommand.java
@@ -9,6 +8,7 @@ C:\Users\Navoei\Documents\GitHub\MyHomes\src\main\java\me\navoei\myhomes\command
 C:\Users\Navoei\Documents\GitHub\MyHomes\src\main\java\me\navoei\myhomes\uuid\Fetcher.java
 C:\Users\Navoei\Documents\GitHub\MyHomes\src\main\java\me\navoei\myhomes\storage\ErrorLogger.java
 C:\Users\Navoei\Documents\GitHub\MyHomes\src\main\java\me\navoei\myhomes\commands\player\ManageHomeCommand.java
+C:\Users\Navoei\Documents\GitHub\MyHomes\src\main\java\me\navoei\myhomes\events\RespawnEvent.java
 C:\Users\Navoei\Documents\GitHub\MyHomes\src\main\java\me\navoei\myhomes\storage\SQLite.java
 C:\Users\Navoei\Documents\GitHub\MyHomes\src\main\java\me\navoei\myhomes\MyHomes.java
 C:\Users\Navoei\Documents\GitHub\MyHomes\src\main\java\me\navoei\myhomes\uuid\UUIDFetcher.java

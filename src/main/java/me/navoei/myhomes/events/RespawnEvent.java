@@ -4,6 +4,7 @@ import me.navoei.myhomes.MyHomes;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
@@ -13,8 +14,10 @@ public class RespawnEvent implements Listener {
 
     MyHomes plugin = MyHomes.getInstance();
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
+
+        if (!plugin.getConfig().getBoolean("respawnToHome")) return;
 
         List<String> home = plugin.getRDatabase().getHome(event.getPlayer(), "Home").join();
         if (home.isEmpty()) return;
