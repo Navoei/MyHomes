@@ -110,7 +110,7 @@ public final class UUIDFetcher {
         try {
             conn = new URL(urlStr).openConnection();
             if (conn != null) {
-                conn.setReadTimeout(60 * 1000);
+                conn.setReadTimeout(1500 * 2000);
             }
             if (conn != null && conn.getInputStream() != null) {
                 in = new InputStreamReader(conn.getInputStream(), "UTF-8");

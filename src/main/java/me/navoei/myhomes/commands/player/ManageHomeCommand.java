@@ -142,6 +142,12 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
 
             plugin.getRDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName).thenAccept(result_homeInvitedPlayersList -> {
                 String invitedPlayersList = result_homeInvitedPlayersList.toString().substring(1, result_homeInvitedPlayersList.toString().length()-1);
+
+                if (invitedPlayersList.isEmpty()) {
+                    player.sendMessage(Lang.PREFIX.toString() + Lang.NO_INVITES_TO_HOME);
+                    return;
+                }
+
                 List<String> messageList = plugin.getLang().getStringList("listinvitestohome");
 
                 for (String message : messageList) {
@@ -158,22 +164,22 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
             }
 
             plugin.getRDatabase().getHomeInfo(player, homeName).thenAccept(result_homeInfo -> {
-                scheduler.runTask(plugin, () -> player.sendMessage(result_homeInfo.toString()));
+
                 List<String> messageList = plugin.getLang().getStringList("homeinfo");
 
                 String name = result_homeInfo.get(0);
-                String x = String.valueOf((int)Double.parseDouble(result_homeInfo.get(1)));
-                String y = String.valueOf((int)Double.parseDouble(result_homeInfo.get(2)));
-                String z = String.valueOf((int)Double.parseDouble(result_homeInfo.get(3)));
-                String world = result_homeInfo.get(4);
+                String world = result_homeInfo.get(1);
+                String x = String.valueOf((int)Double.parseDouble(result_homeInfo.get(2)));
+                String y = String.valueOf((int)Double.parseDouble(result_homeInfo.get(3)));
+                String z = String.valueOf((int)Double.parseDouble(result_homeInfo.get(4)));
                 String privacy = result_homeInfo.get(5);
 
                 for (String message : messageList) {
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', message.replace("%home_name%", name).replace("%home_x%", x).replace("%home_y%", y).replace("%home_z%", z).replace("%home_world%", world).replace("%privacy_status%", privacy)));
+                    scheduler.runTask(plugin, () -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', message.replace("%home_name%", name).replace("%home_x%", x).replace("%home_y%", y).replace("%home_z%", z).replace("%home_world%", world).replace("%privacy_status%", privacy))));
                 }
 
             });
-            player.sendMessage(plugin.getRDatabase().getHomeInfo(player, homeName).join().toString());
+
             return true;
         } else if (args[1].equalsIgnoreCase("privacy")) {
 

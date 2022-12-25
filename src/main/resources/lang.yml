@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
-# |   [MyHomes Messages File]                                                  |
+# |   [MyHomes Language File]                                                  |
 # |   Only commands containing a placeholder support that placeholder.         |
-# |   Making changes to this messages file may cause errors.                   |
+# |   Making changes to this language file may cause errors.                   |
 # |   It is highly recommended that a backup is created before modification.   |
 # ------------------------------------------------------------------------------
 
@@ -46,17 +46,17 @@ deletehome: "&aYour home has been deleted."
 deletespecifiedhome: "&aYour home, %home%, has been deleted."
 
 #Inviting players to home.
-invitedtodefaulthome: "&aThe player %player% has been invited to your home."
-invitedtospecifiedhome: "&aThe player %player% has been invited to %home%."
-uninvitedfromdefaulthome: "&aThe player %player% has been uninvited from your home."
-uninvitedfromspecifiedhome: "&aThe player %player% has been uninvited from %home%."
-alreadyinvitedtodefaulthome: "&cThe player %player% is already invited to your home."
-alreadyinvitedtospecifiedhome: "&cThe player %player% is already invited to %home%."
-notinvitedtodefaulthome: "&cThe player %player% has not been invited to your home."
-notinvitedtospecifiedhome: "&cThe player %player% has not been invited to %home%."
+invitedtodefaulthome: "&aThe player, %player%, has been invited to your home."
+invitedtospecifiedhome: "&aThe player, %player%, has been invited to %home%."
+uninvitedfromdefaulthome: "&aThe player, %player%, has been uninvited from your home."
+uninvitedfromspecifiedhome: "&aThe player, %player%, has been uninvited from %home%."
+alreadyinvitedtodefaulthome: "&cThe player, %player%, is already invited to your home."
+alreadyinvitedtospecifiedhome: "&cThe player, %player%, is already invited to %home%."
+notinvitedtodefaulthome: "&cThe player, %player%, has not been invited to your home."
+notinvitedtospecifiedhome: "&cThe player, %player%, has not been invited to %home%."
 cannotinviteself: "&cYou cannot invite yourself."
 cannotuninviteself: "&cYou cannot uninvite yourself."
-playerhasneverloggedon: "&cThe player %player% has never joined the server."
+playerhasneverloggedon: "&cThe player, %player%, has never joined the server."
 
 #Updating the privacy status.
 defaulthomepublic: "&aYou have changed the privacy status of your home to public."
@@ -76,17 +76,51 @@ homeinfo:
   - "&8--------------------------"
 
 #Listing homes and invites.
+nohomes: "&cYou do not have any homes."
 listhomes:
   - "&8---[ &bMy Homes &8]---"
   - "&a%homes_list%"
   - "&8----------------"
+noinvites: "&cYou do not have any invites."
 listinvites:
   - "&8------[ &bMy Invites &8]------"
   - "&7 - &2%homeowner%: &a%homes_list%"
   - "&8-----------------------"
+noinvitestohome: "&cThis home does not have any invites."
 listinvitestohome:
-  - "&8----[ &bInvites to %home% &8]----"
+  - "&8------[ &bInvites to %home% &8]------"
   - "&a%invites_list%"
   - "&8---------------------------"
 
 #Managing player homes (admin).
+playernohomes: "&cThe player, %player%, does not have any homes."
+playernoinvites: "&cThe player, %player%, does not have any invites."
+managehomes_playerhasnohome: "&cThe player, %player%, does not have a home by the name %home%."
+managehomes_cannotinviteself: "&cThe player, %player%, cannot be invited to their own home."
+managehomes_playeralreadyinvitedtodefaulthome: "&cThe player, %invited_player%, has already been invited to %homeowner%'s home."
+managehomes_playeralreadyinvitedtospecifiedhome: "&cThe player, %invited_player%, has already been invited to %home%, which is owned by %homeowner%."
+managehomes_invitedtodefaulthome: "&aThe player, %invited_player%, has been invited to %homeowner%'s home."
+managehomes_invitedtospecifiedhome: "&aThe player, %invited_player%, has been invited to the home %home%, which is owned by %homeowner%."
+managehomes_cannotuninviteself: "&cThe player, %player%, cannot be uninvited from their own home."
+managehomes_hasnotbeeninvitedtodefaulthome: "&cThe player, %uninvited_player%, has not been invited to %homeowner%'s home."
+managehomes_hasnotbeeninvitedtospecifiedhome: "&cThe player, %uninvited_player%, has not been invited to %home%, which is owned by %homeowner%."
+managehomes_uninvitedfromdefaulthome: "&aThe player, %uninvited_player%, has been uninvited from %homeowner%'s home."
+managehomes_uninvitedfromspecifiedhome: "&aThe player, %uninvited_player%, has been uninvited from %home%, which is owned by %homeowner%."
+managehomes_privacystatusprivatedefaulthome: "&aYou have changed the privacy status of %homeowner%'s home to private."
+managehomes_privacystatuspublicdefaulthome: "&aYou have changed the privacy status of %homeowner%'s home to public."
+managehomes_privacystatusprivatespecifiedhome: "&aYou have changed the privacy status of %home%, which is owned by %homeowner%, to private."
+managehomes_privacystatuspublicspecifiedhome: "&aYou have changed the privacy status of %home%, which is owned by %homeowner%, to public."
+managehomes_setplayerdefaulthome: "&aYou have set %player%'s home."
+managehomes_setplayerspecifiedhome: "&aYou have set a home, %home%, for %player%."
+managehomes_updatedlocationdefaulthome: "&aYou have updated the location of %homeowner%'s home."
+managehomes_updatedlocationspecifiedhome: "&aYou have updated the location of %home%, which is owned by %homeowner%."
+managehomes_deletedefaulthome: "&aYou have deleted %player%'s home."
+managehomes_deletespecifiedhome: "&aYou have deleted %home%, which belonged to %homeowner%."
+listplayerhomes:
+  - "&8---[ &b%player%'s Homes &8]---"
+  - "&a%homes_list%"
+  - "&8----------------"
+listplayerinvites:
+  - "&8------[ &b%player%'s Invites &8]------"
+  - "&7 - &2%homeowner%: &a%homes_list%"
+  - "&8-----------------------"

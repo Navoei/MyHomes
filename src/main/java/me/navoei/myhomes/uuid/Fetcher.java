@@ -16,7 +16,7 @@ public class Fetcher {
     }
 
     public String getPlayerNameFromMojang(String playerUUID) {
-        return Bukkit.getOfflinePlayer(UUID.fromString(playerUUID)).getName();
+        return NameFetcher.getName(UUID.fromString(playerUUID));
     }
 
     public String getPlayerNameFromUUID(String playerUUID) {

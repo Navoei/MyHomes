@@ -1,6 +1,7 @@
 package me.navoei.myhomes.commands.player;
 
 import me.navoei.myhomes.MyHomes;
+import me.navoei.myhomes.language.Lang;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -24,9 +25,18 @@ public class ListInvitesCommand implements CommandExecutor {
             return true;
         }
 
+        if (args.length >= 1) {
+            sender.sendMessage(Lang.PREFIX.toString() + Lang.TOO_MANY_ARGUMENTS);
+            return true;
+        }
+
         Player player = (Player) sender;
 
         plugin.getRDatabase().getHomeInviteList(player.getUniqueId().toString()).thenAccept(result_homeInviteList -> {
+            if (result_homeInviteList.isEmpty()) {
+                player.sendMessage(Lang.PREFIX.toString() + Lang.NO_INVITES);
+                return;
+            }
 
             List<String> messageList = plugin.getLang().getStringList("listinvites");
 

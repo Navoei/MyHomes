@@ -1,6 +1,7 @@
 package me.navoei.myhomes.commands.player;
 
 import me.navoei.myhomes.MyHomes;
+import me.navoei.myhomes.language.Lang;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -22,13 +23,17 @@ public class ListHomesCommand implements CommandExecutor {
         }
 
         if (args.length >= 1) {
-            sender.sendMessage("Too many arguments!");
+            sender.sendMessage(Lang.PREFIX.toString() + Lang.TOO_MANY_ARGUMENTS);
             return true;
         }
 
         Player player = (Player) sender;
 
         plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
+            if (result_homeList.isEmpty()) {
+                player.sendMessage(Lang.PREFIX.toString() + Lang.NO_HOMES);
+                return;
+            }
 
             String homesList = result_homeList.toString().substring(1, result_homeList.toString().length()-1);
             List<String> messageList = plugin.getLang().getStringList("listhomes");

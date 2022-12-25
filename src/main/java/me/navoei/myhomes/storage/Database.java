@@ -568,7 +568,7 @@ public abstract class Database {
 
                 rs = ps.executeQuery();
                 while(rs.next()){
-                    invitedPlayers.add(uuidFetcher.getPlayerNameFromMojang(rs.getString("invited_player_uuid")));
+                    invitedPlayers.add(uuidFetcher.getPlayerNameFromUUID(rs.getString("invited_player_uuid")));
                     invitedPlayers.removeAll(Collections.singleton(null));
                 }
 
@@ -585,37 +585,6 @@ public abstract class Database {
                 }
             }
             return invitedPlayers;
-        });
-    }
-
-    public CompletableFuture<List<String>> listHomeownersOfInvitedHomes(Player player) {
-        return CompletableFuture.supplyAsync(() -> {
-            List<String> invitedHomeowners = new ArrayList<>();
-
-            Connection conn = null;
-            PreparedStatement ps = null;
-            ResultSet rs;
-            try {
-                conn = getSQLConnection();
-                ps = conn.prepareStatement("SELECT * FROM " + invitesTable + " WHERE invited_player_uuid = '"+player.getUniqueId()+"';");
-
-                rs = ps.executeQuery();
-                while(rs.next()){
-                    invitedHomeowners.add(uuidFetcher.getPlayerNameFromUUID(rs.getString("homeowner_uuid")));
-                }
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-            } finally {
-                try {
-                    if (ps != null)
-                        ps.close();
-                    if (conn != null)
-                        conn.close();
-                } catch (SQLException ex) {
-                    plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-                }
-            }
-            return invitedHomeowners;
         });
     }
 
@@ -785,8 +754,6 @@ public abstract class Database {
                                 plugin.getLogger().info("Imported invite: [ Homeowner UUID: " + homeownerUUID + ", Home Name: Home, Invited Player: " + invitedPlayerUUID);
                             }
 
-                            Thread.sleep(2000);
-
                         }
                     } else {
                         inviteList = List.of("No invites.");
@@ -798,13 +765,9 @@ public abstract class Database {
                         setHomeColumnsFromOldDatabase(homeownerUUID, "Home", rs.getString("world"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"), rs.getFloat("yaw"), rs.getFloat("pitch"), rs.getBoolean("publicAll"));
                         plugin.getLogger().info("Imported home: [ Homeowner Name: " + rs.getString("name") + ", Homeowner UUID: " + uuidFetcher.getOfflinePlayerUUIDFromMojang(rs.getString("name")).join() + ", Home Name: Home, World: " + rs.getString("world") + ", X: " + rs.getDouble("x") + ", Y: " + rs.getDouble("y") + ", Z: " + rs.getDouble("z") + ", Yaw: " + rs.getFloat("yaw") + ", Pitch: " + rs.getFloat("pitch") + ", Privacy Status: " + rs.getBoolean("publicAll") + ", Invites: " + inviteList +" ]");
                     }
-
-                    Thread.sleep(2000);
                 }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         } finally {
             try {
                 if (ps != null)
