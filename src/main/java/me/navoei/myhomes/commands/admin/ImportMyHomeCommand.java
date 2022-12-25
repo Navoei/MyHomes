@@ -12,6 +12,9 @@ import java.io.File;
 import java.sql.SQLException;
 
 public class ImportMyHomeCommand implements CommandExecutor {
+
+    MyHomes plugin = MyHomes.getInstance();
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -20,7 +23,7 @@ public class ImportMyHomeCommand implements CommandExecutor {
             return true;
         }
 
-        File oldMyHomeDatabase = new File(MyHomes.getInstance().getDataFolder(), "homes.db");
+        File oldMyHomeDatabase = new File(plugin.getDataFolder(), "homes.db");
         if (!oldMyHomeDatabase.exists() || oldMyHomeDatabase.isDirectory()) {
             sender.sendMessage(Lang.PREFIX.toString() + Lang.OLD_DATABASE_NOT_EXIST);
             return true;
@@ -28,9 +31,9 @@ public class ImportMyHomeCommand implements CommandExecutor {
 
         sender.sendMessage(Lang.PREFIX.toString() + Lang.IMPORTING_DATABASE);
 
-        Bukkit.getScheduler().runTaskAsynchronously(MyHomes.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                MyHomes.getInstance().getRDatabase().importOldMyHomeDatabase(oldMyHomeDatabase, MyHomes.getInstance());
+                plugin.getRDatabase().importOldMyHomeDatabase(oldMyHomeDatabase, plugin);
             } catch (SQLException e) {
                 sender.sendMessage(Lang.PREFIX.toString() + Lang.DATABASE_IMPORT_ERROR);
                 e.printStackTrace();

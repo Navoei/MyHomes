@@ -38,7 +38,7 @@ public class DeleteHomeCommand implements CommandExecutor, TabCompleter {
            String homeName = result_homeInfo.get(0);
 
            if (homeName.isEmpty()) {
-               scheduler.runTask(plugin, () -> player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS));
+               player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
                return;
            }
 
@@ -48,9 +48,9 @@ public class DeleteHomeCommand implements CommandExecutor, TabCompleter {
            });
 
             if (homeName.equalsIgnoreCase("home")) {
-                scheduler.runTask(plugin, () -> player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_DELETED));
+                player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_DELETED);
             } else {
-                scheduler.runTask(plugin, () -> player.sendMessage(Lang.PREFIX + Lang.HOME_DELETED_SPECIFIED.toString().replace("%home%", homeName)));
+                player.sendMessage(Lang.PREFIX + Lang.HOME_DELETED_SPECIFIED.toString().replace("%home%", homeName));
             }
 
         });

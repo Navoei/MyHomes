@@ -38,22 +38,21 @@ public class SetHomeCommand implements CommandExecutor {
                    String homeName = result_homeInfo.get(0);
                    scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().updateHomeLocation(player, homeName));
 
-                   scheduler.runTask(plugin, () -> {
-                       if (homeName.equalsIgnoreCase("Home")) {
-                           player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_UPDATED);
-                       } else {
-                           player.sendMessage(Lang.PREFIX + Lang.HOME_SPECIFIED_UPDATED.toString().replace("%home%", homeName));
-                       }
-                   });
+                   if (homeName.equalsIgnoreCase("Home")) {
+                       player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_UPDATED);
+                   } else {
+                       player.sendMessage(Lang.PREFIX + Lang.HOME_SPECIFIED_UPDATED.toString().replace("%home%", homeName));
+                   }
+
                    return;
                }
 
                 if (args[0].equalsIgnoreCase("Home")) {
                     scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setHomeColumns(player, "Home", false));
-                    scheduler.runTask(plugin, () -> player.sendMessage(Lang.PREFIX.toString() + Lang.SET_HOME));
+                    player.sendMessage(Lang.PREFIX.toString() + Lang.SET_HOME);
                 } else {
                     scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setHomeColumns(player, args[0], false));
-                    scheduler.runTask(plugin, () -> player.sendMessage(Lang.PREFIX + Lang.SET_HOME_SPECIFIED.toString().replace("%home%", args[0])));
+                    player.sendMessage(Lang.PREFIX + Lang.SET_HOME_SPECIFIED.toString().replace("%home%", args[0]));
                 }
 
             });
@@ -63,12 +62,12 @@ public class SetHomeCommand implements CommandExecutor {
         plugin.getRDatabase().getHomeInfo(player, "Home").thenAccept(result_homeInfo -> {
            if (!result_homeInfo.isEmpty()) {
                scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().updateHomeLocation(player, "Home"));
-               scheduler.runTask(plugin, () -> player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_UPDATED));
+               player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_UPDATED);
                return;
            }
 
            scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setHomeColumns(player, "Home", false));
-           scheduler.runTask(plugin, () -> player.sendMessage(Lang.PREFIX.toString() + Lang.SET_HOME));
+           player.sendMessage(Lang.PREFIX.toString() + Lang.SET_HOME);
 
         });
 
