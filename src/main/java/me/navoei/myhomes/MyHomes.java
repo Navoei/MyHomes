@@ -2,6 +2,7 @@ package me.navoei.myhomes;
 
 import me.navoei.myhomes.commands.admin.*;
 import me.navoei.myhomes.commands.player.*;
+import me.navoei.myhomes.events.RespawnEvent;
 import me.navoei.myhomes.language.Lang;
 import me.navoei.myhomes.storage.Database;
 import me.navoei.myhomes.storage.SQLite;
@@ -44,6 +45,7 @@ public final class MyHomes extends JavaPlugin {
             getCommand("listplayerinvites").setExecutor(new ListPlayerInvitesCommand());
             getCommand("manageplayerhome").setExecutor(new ManagePlayerHomeCommand());
             getServer().getPluginManager().registerEvents(new ManagePlayerHomeCommand(), this);
+            getServer().getPluginManager().registerEvents(new RespawnEvent(), this);
 
     }
 
