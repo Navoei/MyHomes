@@ -16,6 +16,7 @@ commands:
     aliases: homelist
   managehome:
     description: Manages the specified home.
+    aliases: mhome
   deletehome:
     description: Deletes the specified home.
     aliases: delhome
@@ -23,13 +24,14 @@ commands:
     description: Teleports a player to the specified home.
   listinvites:
     description: Shows homes the player is invited to.
-    aliases: invitelist
+    aliases: [invitelist, ilist]
   listplayerhomes:
     description: Allows admins to list a player's homes.
   listplayerinvites:
     description: Allows admins to list homes a player is invited to.
   manageplayerhome:
     description: Allows admins to manage other player's homes.
+    aliases: mphome
 permissions:
   myhomes.importolddatabase:
     description: Converts old database from MyHome. However, this command can only be run from console.
