@@ -42,6 +42,11 @@ public class SetHomeCommand implements CommandExecutor {
 
             if (args.length == 1) {
 
+                if (!args[0].matches("[a-zA-Z0-9]*")) {
+                    player.sendMessage(Lang.PREFIX.toString() + Lang.INVALID_CHARACTERS);
+                    return;
+                }
+
                 if (result_homeList.size() >= maxHomes && !result_homeList.toString().toLowerCase().contains(args[0].toLowerCase())) {
                     player.sendMessage(exceededHomes);
                     return;

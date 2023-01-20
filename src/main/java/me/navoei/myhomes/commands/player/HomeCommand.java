@@ -76,6 +76,11 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
 
                         String homeName = args[1];
 
+                        if (!args[0].matches("[a-zA-Z0-9]*")) {
+                            player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
+                            return;
+                        }
+
                         plugin.getRDatabase().getHomeUsingHomeownerUUID(result_homeownerUUID, homeName).thenAccept(result_home -> plugin.getRDatabase().getHomeInvitedPlayers(result_homeownerUUID, homeName).thenAccept(result_homeInvitedPlayers -> plugin.getRDatabase().getHomePrivacyStatus(result_homeownerUUID, homeName).thenAccept(result_homePrivacyStatus -> scheduler.runTask(plugin, () -> {
                             if (result_home.isEmpty()) {
                                 player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
@@ -124,6 +129,11 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
                 } else if (args.length == 1) {
 
                     String homeName = args[0];
+
+                    if (!homeName.matches("[a-zA-Z0-9]*")) {
+                        player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
+                        return;
+                    }
 
                     plugin.getRDatabase().getHome(player, homeName).thenAccept(result_home -> scheduler.runTask(plugin, () -> {
                         if (result_home.isEmpty()) {

@@ -51,6 +51,11 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
         String playerName = args[0];
         String homeName = args[1];
 
+        if (!homeName.matches("[a-zA-Z0-9]*")) {
+            sender.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
+            return true;
+        }
+
         String playerHasNoHome = Lang.MANAGE_HOMES_PLAYER_HAS_NO_HOME.toString().replace("%player%", playerName).replace("%home%", homeName);
 
         if (args.length == 4) {

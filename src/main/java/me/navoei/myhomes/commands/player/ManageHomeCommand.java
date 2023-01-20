@@ -57,6 +57,11 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
 
         String homeName = args[0];
 
+        if (!homeName.matches("[a-zA-Z0-9]*")) {
+            player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
+            return true;
+        }
+
         if (args[1].equalsIgnoreCase("invite")) {
 
             if (args.length != 3) {
