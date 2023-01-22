@@ -389,7 +389,36 @@ public abstract class Database {
         });
     }
 
-    public CompletableFuture<List<String>> getHomeListUsingHomeownerUUID(String playerUUID) {
+    public List<String> getHomeListUsingHomeownerUUID(String playerUUID) {
+            List<String> homeList = new ArrayList<>();
+
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs;
+            try {
+                conn = getSQLConnection();
+                ps = conn.prepareStatement("SELECT * FROM " + homesTable + " WHERE player_uuid = '"+playerUUID+"';");
+
+                rs = ps.executeQuery();
+                while(rs.next()) {
+                    homeList.add(rs.getString("home_name"));
+                }
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            } finally {
+                try {
+                    if (ps != null)
+                        ps.close();
+                    if (conn != null)
+                        conn.close();
+                } catch (SQLException ex) {
+                    plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                }
+            }
+            return homeList;
+    }
+
+    public CompletableFuture<List<String>> getHomeListUsingHomeownerUUIDAsynchronously(String playerUUID) {
         return CompletableFuture.supplyAsync(() -> {
             List<String> homeList = new ArrayList<>();
 
@@ -554,7 +583,7 @@ public abstract class Database {
         }
     }
 
-    public CompletableFuture<List<String>> getHomeInvitedPlayers(String homeownerUUID, String homeName) {
+    public CompletableFuture<List<String>> getHomeInvitedPlayersAsync(String homeownerUUID, String homeName) {
         return CompletableFuture.supplyAsync(() -> {
             Connection conn = null;
             PreparedStatement ps = null;
@@ -586,6 +615,38 @@ public abstract class Database {
             }
             return invitedPlayers;
         });
+    }
+
+    public List<String> getHomeInvitedPlayers(String homeownerUUID, String homeName) {
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs;
+
+            List<String> invitedPlayers = new ArrayList<>();
+
+            try {
+                conn = getSQLConnection();
+                ps = conn.prepareStatement("SELECT * FROM " + invitesTable + " WHERE homeowner_uuid = '"+homeownerUUID+"' AND home_name LIKE '"+homeName+"';");
+
+                rs = ps.executeQuery();
+                while(rs.next()){
+                    invitedPlayers.add(uuidFetcher.getPlayerNameFromUUID(rs.getString("invited_player_uuid")));
+                    invitedPlayers.removeAll(Collections.singleton(null));
+                }
+
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            } finally {
+                try {
+                    if (ps != null)
+                        ps.close();
+                    if (conn != null)
+                        conn.close();
+                } catch (SQLException ex) {
+                    plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+                }
+            }
+            return invitedPlayers;
     }
 
     public CompletableFuture<HashMap<String, ArrayList<String>>> getHomeInviteList(String invitedPlayer_uuid) {

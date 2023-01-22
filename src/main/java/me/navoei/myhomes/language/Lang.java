@@ -25,6 +25,7 @@ public enum Lang {
     TOO_MANY_HOMES("toomanyhomes", "&cYou cannot set more than %maximum_number_of_homes% homes."),
     HOME_SPECIFIED_UPDATED("specifiedhomeupdated", "&aYour home, %home%, has been updated with a new location."),
     INVALID_CHARACTERS("invalidcharacters", "&cOnly alphanumeric characters can be used."),
+    TOO_MANY_CHARACTERS("toomanycharacters", "&cHome names can only be %character_limit% characters long."),
     HOME("home", "&aWelcome to your home."),
     HOME_OTHER("homeother", "&aWelcome to %player%'s home."),
     SPECIFIED_HOME("homespecified", "&aWelcome to %home%."),

@@ -42,6 +42,7 @@ homeupdated: "&aYour home has been updated with a new location."
 specifiedhomeupdated: "&aYour home, %home%, has been updated with a new location."
 toomanyhomes: "&cYou cannot set more than %maximum_number_of_homes% homes."
 invalidcharacters: "&cOnly alphanumeric characters can be used."
+toomanycharacters: "&cHome names can only be %character_limit% characters long."
 
 #Deleting a home.
 deletehome: "&aYour home has been deleted."

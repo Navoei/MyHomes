@@ -33,6 +33,8 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
+        int characterLimit = plugin.getConfig().getInt("characterlimit");
+
         if (!sender.hasPermission("myhomes.manageplayerhome")) {
             sender.sendMessage(Lang.PREFIX.toString() + Lang.NO_PERMISSION);
             return true;
@@ -52,7 +54,12 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
         String homeName = args[1];
 
         if (!homeName.matches("[a-zA-Z0-9]*")) {
-            sender.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
+            sender.sendMessage(Lang.PREFIX.toString() + Lang.INVALID_CHARACTERS);
+            return true;
+        }
+
+        if (homeName.length() > characterLimit) {
+            sender.sendMessage(Lang.PREFIX + Lang.TOO_MANY_CHARACTERS.toString().replace("%character_limit%", Integer.toString(characterLimit)));
             return true;
         }
 
@@ -80,7 +87,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
 
                         if (result_playedBefore) {
 
-                            plugin.getRDatabase().getHomeInvitedPlayers(result_playerUUID, homeName).thenAccept(result_homeInvitedPlayers -> {
+                            plugin.getRDatabase().getHomeInvitedPlayersAsync(result_playerUUID, homeName).thenAccept(result_homeInvitedPlayers -> {
 
                                 if (result_homeInvitedPlayers.toString().toLowerCase().contains(invitedPlayerName.toLowerCase())) {
                                     if (homeName.equalsIgnoreCase("Home")) {
@@ -139,7 +146,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
                         return;
                     }
 
-                    plugin.getRDatabase().getHomeInvitedPlayers(result_playerUUID, homeName).thenAccept(result_homeInvitedPlayers -> {
+                    plugin.getRDatabase().getHomeInvitedPlayersAsync(result_playerUUID, homeName).thenAccept(result_homeInvitedPlayers -> {
                        if (!result_homeInvitedPlayers.toString().toLowerCase().contains(uninvitedPlayerName.toLowerCase())) {
                            if (homeName.equalsIgnoreCase("Home")) {
                                sender.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_HAS_NOT_BEEN_INVITED_TO_DEFAULT_HOME.toString().replace("%uninvited_player%", uninvitedPlayerName).replace("%homeowner%", playerName));
@@ -212,7 +219,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
                         return;
                     }
 
-                    uuidFetcher.getOfflinePlayerUUIDFromMojang(playerName).thenAccept(result_playerUUID -> plugin.getRDatabase().getHomeListUsingHomeownerUUID(result_playerUUID).thenAccept(result_homeList -> {
+                    uuidFetcher.getOfflinePlayerUUIDFromMojang(playerName).thenAccept(result_playerUUID -> plugin.getRDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
 
                         if (!result_homeList.toString().toLowerCase().contains(homeName.toLowerCase())) {
                             if (homeName.equalsIgnoreCase("Home")) {
@@ -238,7 +245,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
                 return true;
             } else if (args[2].equalsIgnoreCase("delete")) {
 
-                uuidFetcher.getOfflinePlayerUUIDFromMojang(playerName).thenAccept(result_playerUUID -> plugin.getRDatabase().getHomeListUsingHomeownerUUID(result_playerUUID).thenAccept(result_homeList -> {
+                uuidFetcher.getOfflinePlayerUUIDFromMojang(playerName).thenAccept(result_playerUUID -> plugin.getRDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
 
                     if (!result_homeList.toString().toLowerCase().contains(homeName.toLowerCase())) {
                         sender.sendMessage(Lang.PREFIX + playerHasNoHome);
@@ -261,14 +268,14 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
             } else if (args[2].equalsIgnoreCase("listinvites")) {
 
                 uuidFetcher.getOfflinePlayerUUIDFromMojang(playerName).thenAccept(result_playerUUID -> {
-                   plugin.getRDatabase().getHomeListUsingHomeownerUUID(result_playerUUID).thenAccept(result_homeList -> {
+                   plugin.getRDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
 
                        if (!result_homeList.toString().toLowerCase().contains(homeName.toLowerCase())) {
                            sender.sendMessage(Lang.PREFIX + playerHasNoHome);
                            return;
                        }
 
-                       plugin.getRDatabase().getHomeInvitedPlayers(result_playerUUID, homeName).thenAccept(result_homeInvitedPlayersList -> {
+                       plugin.getRDatabase().getHomeInvitedPlayersAsync(result_playerUUID, homeName).thenAccept(result_homeInvitedPlayersList -> {
                            String invitedPlayersList = result_homeInvitedPlayersList.toString().substring(1, result_homeInvitedPlayersList.toString().length()-1);
 
                            if (invitedPlayersList.isEmpty()) {
@@ -290,7 +297,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
             } else if (args[2].equalsIgnoreCase("info")) {
 
                 uuidFetcher.getOfflinePlayerUUIDFromMojang(playerName).thenAccept(result_playerUUID -> {
-                   plugin.getRDatabase().getHomeListUsingHomeownerUUID(result_playerUUID).thenAccept(result_homeList -> {
+                   plugin.getRDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
                       if (!result_homeList.toString().toLowerCase().contains(homeName.toLowerCase())) {
                           sender.sendMessage(Lang.PREFIX + playerHasNoHome);
                           return;
@@ -395,14 +402,14 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
         }
 
         if (args.size() == 1 && buffer.endsWith(" ")) {
-            homeList = plugin.getRDatabase().getHomeListUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(args.get(0))).join();
+            homeList = plugin.getRDatabase().getHomeListUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(args.get(0)));
             if (homeList.isEmpty()) return;
             event.setCompletions(homeList);
             event.setHandled(true);
         }
 
         if (args.size() == 2 && !buffer.endsWith(" ")) {
-            homeList = plugin.getRDatabase().getHomeListUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(args.get(0))).join();
+            homeList = plugin.getRDatabase().getHomeListUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(args.get(0)));
             StringUtil.copyPartialMatches(args.get(1), homeList, tabCompletions);
             Collections.sort(tabCompletions);
             event.setCompletions(tabCompletions);
@@ -429,7 +436,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
                 event.setCompletions(onlinePlayersList);
                 event.setHandled(true);
             } else if (args.get(2).equalsIgnoreCase("uninvite")) {
-                List<String> invitedPlayersList = plugin.getRDatabase().getHomeInvitedPlayers(uuidFetcher.getOfflinePlayerUUID(args.get(0)), args.get(1)).join();
+                List<String> invitedPlayersList = plugin.getRDatabase().getHomeInvitedPlayers(uuidFetcher.getOfflinePlayerUUID(args.get(0)), args.get(1));
                 if (invitedPlayersList.isEmpty()) {
                     event.setCompletions(new ArrayList<>());
                     event.setHandled(true);
@@ -453,7 +460,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
         }
 
         if (args.size() == 4 && args.get(2).equalsIgnoreCase("uninvite")) {
-            List<String> invitedPlayersList = plugin.getRDatabase().getHomeInvitedPlayers(uuidFetcher.getOfflinePlayerUUID(args.get(0)), args.get(1)).join();
+            List<String> invitedPlayersList = plugin.getRDatabase().getHomeInvitedPlayers(uuidFetcher.getOfflinePlayerUUID(args.get(0)), args.get(1));
             if (invitedPlayersList.isEmpty()) {
                 event.setCompletions(new ArrayList<>());
                 event.setHandled(true);

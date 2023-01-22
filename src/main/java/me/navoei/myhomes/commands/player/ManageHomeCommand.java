@@ -80,7 +80,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
 
                 if (result_playedBefore) {
 
-                    plugin.getRDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName).thenAccept(result_homeInvitedPlayers -> {
+                    plugin.getRDatabase().getHomeInvitedPlayersAsync(player.getUniqueId().toString(), homeName).thenAccept(result_homeInvitedPlayers -> {
 
                         if (result_homeInvitedPlayers.toString().toLowerCase().contains(playerName.toLowerCase())) {
                             if (homeName.equalsIgnoreCase("Home")) {
@@ -136,7 +136,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            plugin.getRDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName).thenAccept(result_homeInvitedPlayers -> {
+            plugin.getRDatabase().getHomeInvitedPlayersAsync(player.getUniqueId().toString(), homeName).thenAccept(result_homeInvitedPlayers -> {
 
                 if (!result_homeInvitedPlayers.toString().toLowerCase().contains(playerName.toLowerCase())) {
                     if (homeName.equalsIgnoreCase("Home")) {
@@ -164,7 +164,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            plugin.getRDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName).thenAccept(result_homeInvitedPlayersList -> {
+            plugin.getRDatabase().getHomeInvitedPlayersAsync(player.getUniqueId().toString(), homeName).thenAccept(result_homeInvitedPlayersList -> {
                 String invitedPlayersList = result_homeInvitedPlayersList.toString().substring(1, result_homeInvitedPlayersList.toString().length()-1);
 
                 if (invitedPlayersList.isEmpty()) {
@@ -294,7 +294,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
             } else if (args[1].equalsIgnoreCase("uninvite")) {
 
                 String homeName = plugin.getRDatabase().getHomeInfo(player, args[0]).join().get(0);
-                List<String> invitedPlayersList = plugin.getRDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName).join();
+                List<String> invitedPlayersList = plugin.getRDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName);
                 invitedPlayersList.removeAll(Collections.singletonList(null));
 
                 StringUtil.copyPartialMatches(args[2], invitedPlayersList, tabCompletions);

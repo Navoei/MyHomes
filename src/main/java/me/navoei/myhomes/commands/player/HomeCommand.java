@@ -3,7 +3,6 @@ package me.navoei.myhomes.commands.player;
 import me.navoei.myhomes.MyHomes;
 import me.navoei.myhomes.language.Lang;
 import me.navoei.myhomes.uuid.Fetcher;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -53,7 +52,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
 
                     if (args.length == 1) {
 
-                        plugin.getRDatabase().getHomeUsingHomeownerUUID(result_homeownerUUID, "Home").thenAccept(result_home -> plugin.getRDatabase().getHomeInvitedPlayers(result_homeownerUUID, "Home").thenAccept(result_homeInvitedPlayers -> plugin.getRDatabase().getHomePrivacyStatus(result_homeownerUUID, "Home").thenAccept(result_homePrivacyStatus -> scheduler.runTask(plugin, () -> {
+                        plugin.getRDatabase().getHomeUsingHomeownerUUID(result_homeownerUUID, "Home").thenAccept(result_home -> plugin.getRDatabase().getHomeInvitedPlayersAsync(result_homeownerUUID, "Home").thenAccept(result_homeInvitedPlayers -> plugin.getRDatabase().getHomePrivacyStatus(result_homeownerUUID, "Home").thenAccept(result_homePrivacyStatus -> scheduler.runTask(plugin, () -> {
                             if (result_home.isEmpty()) {
                                 player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
                                 return;
@@ -76,12 +75,12 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
 
                         String homeName = args[1];
 
-                        if (!args[0].matches("[a-zA-Z0-9]*")) {
-                            player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
+                        if (!homeName.matches("[a-zA-Z0-9]*")) {
+                            player.sendMessage(Lang.PREFIX.toString() + Lang.INVALID_CHARACTERS);
                             return;
                         }
 
-                        plugin.getRDatabase().getHomeUsingHomeownerUUID(result_homeownerUUID, homeName).thenAccept(result_home -> plugin.getRDatabase().getHomeInvitedPlayers(result_homeownerUUID, homeName).thenAccept(result_homeInvitedPlayers -> plugin.getRDatabase().getHomePrivacyStatus(result_homeownerUUID, homeName).thenAccept(result_homePrivacyStatus -> scheduler.runTask(plugin, () -> {
+                        plugin.getRDatabase().getHomeUsingHomeownerUUID(result_homeownerUUID, homeName).thenAccept(result_home -> plugin.getRDatabase().getHomeInvitedPlayersAsync(result_homeownerUUID, homeName).thenAccept(result_homeInvitedPlayers -> plugin.getRDatabase().getHomePrivacyStatus(result_homeownerUUID, homeName).thenAccept(result_homePrivacyStatus -> scheduler.runTask(plugin, () -> {
                             if (result_home.isEmpty()) {
                                 player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
                                 return;

@@ -37,10 +37,16 @@ public class SetHomeCommand implements CommandExecutor {
         plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
 
             int maxHomes = plugin.getConfig().getInt("maximumhomes");
+            int characterLimit = plugin.getConfig().getInt("characterlimit");
 
             String exceededHomes = Lang.PREFIX + Lang.TOO_MANY_HOMES.toString().replace("%maximum_number_of_homes%", Integer.toString(maxHomes));
 
             if (args.length == 1) {
+
+                if (args[0].length() > characterLimit) {
+                    player.sendMessage(Lang.PREFIX + Lang.TOO_MANY_CHARACTERS.toString().replace("%character_limit%", Integer.toString(characterLimit)));
+                    return;
+                }
 
                 if (!args[0].matches("[a-zA-Z0-9]*")) {
                     player.sendMessage(Lang.PREFIX.toString() + Lang.INVALID_CHARACTERS);
