@@ -11,18 +11,21 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
+public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCompleter {
 
     MyHomes plugin = MyHomes.getInstance();
     BukkitScheduler scheduler = plugin.getServer().getScheduler();
@@ -365,112 +368,80 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener {
         return false;
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onTabCompletion(AsyncTabCompleteEvent event) {
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
-        if (!event.getSender().hasPermission("myhomes.manageplayerhome")) {
-            return;
+        if (!sender.hasPermission("myhomes.manageplayerhome")) {
+            return null;
         }
-
-        if (!event.isCommand()) return;
-
-        String buffer = event.getBuffer();
-        if (buffer.isEmpty()) return;
-
-        if (buffer.charAt(0) == '/') {
-            buffer = buffer.substring(1);
-        }
-
-        int firstSpace = buffer.indexOf(' ');
-        if (firstSpace < 0) {
-            return;
-        }
-
-        if (!buffer.startsWith("manageplayerhome")) return;
-
-        List<String> args = new ArrayList<>(Arrays.asList(buffer.split(" ")));
-        args.remove(0);
 
         List<String> tabCompletions = new ArrayList<>();
         List<String> subCommands = new ArrayList<>(Arrays.asList(SUB_COMMANDS));
         List<String> privacyStatusOptions = new ArrayList<>(Arrays.asList(PRIVACY_STATUS_OPTIONS));
-        List<String> homeList;
 
-        List<String> onlinePlayersList = new ArrayList<>();
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            onlinePlayersList.add(onlinePlayer.getName());
-        }
+        if (args.length == 1) {
+            List<String> onlinePlayersList = new ArrayList<>();
 
-        if (args.size() == 1 && buffer.endsWith(" ")) {
-            homeList = plugin.getRDatabase().getHomeListUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(args.get(0)));
-            if (homeList.isEmpty()) return;
-            event.setCompletions(homeList);
-            event.setHandled(true);
-        }
-
-        if (args.size() == 2 && !buffer.endsWith(" ")) {
-            homeList = plugin.getRDatabase().getHomeListUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(args.get(0)));
-            StringUtil.copyPartialMatches(args.get(1), homeList, tabCompletions);
-            Collections.sort(tabCompletions);
-            event.setCompletions(tabCompletions);
-            event.setHandled(true);
-        }
-
-        if (args.size() == 2 && buffer.endsWith(" ")) {
-            event.setCompletions(subCommands);
-            event.setHandled(true);
-        }
-
-        if (args.size() == 3) {
-            StringUtil.copyPartialMatches(args.get(2), subCommands, tabCompletions);
-            Collections.sort(tabCompletions);
-            event.setCompletions(tabCompletions);
-            event.setHandled(true);
-        }
-
-        if (args.size() == 3 && buffer.endsWith(" ")) {
-            if (args.get(2).equalsIgnoreCase("privacy")) {
-                event.setCompletions(privacyStatusOptions);
-                event.setHandled(true);
-            } else if (args.get(2).equalsIgnoreCase("invite")) {
-                event.setCompletions(onlinePlayersList);
-                event.setHandled(true);
-            } else if (args.get(2).equalsIgnoreCase("uninvite")) {
-                List<String> invitedPlayersList = plugin.getRDatabase().getHomeInvitedPlayers(uuidFetcher.getOfflinePlayerUUID(args.get(0)), args.get(1));
-                if (invitedPlayersList.isEmpty()) {
-                    event.setCompletions(new ArrayList<>());
-                    event.setHandled(true);
-                } else {
-                    event.setCompletions(invitedPlayersList);
-                    event.setHandled(true);
-                }
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                onlinePlayersList.add(onlinePlayer.getName());
             }
+
+            StringUtil.copyPartialMatches(args[0], onlinePlayersList, tabCompletions);
+            Collections.sort(tabCompletions);
+            return tabCompletions;
         }
 
-        if (args.size() == 4 && args.get(2).equalsIgnoreCase("privacy")) {
-            StringUtil.copyPartialMatches(args.get(3), privacyStatusOptions, tabCompletions);
-            event.setCompletions(tabCompletions);
-            event.setHandled(true);
-        }
-
-        if (args.size() == 4 && args.get(2).equalsIgnoreCase("invite")) {
-            StringUtil.copyPartialMatches(args.get(3), onlinePlayersList, tabCompletions);
-            event.setCompletions(tabCompletions);
-            event.setHandled(true);
-        }
-
-        if (args.size() == 4 && args.get(2).equalsIgnoreCase("uninvite")) {
-            List<String> invitedPlayersList = plugin.getRDatabase().getHomeInvitedPlayers(uuidFetcher.getOfflinePlayerUUID(args.get(0)), args.get(1));
-            if (invitedPlayersList.isEmpty()) {
-                event.setCompletions(new ArrayList<>());
-                event.setHandled(true);
+        if (args.length == 2) {
+            String playerName = args[0];
+            List<String> homeList = plugin.getRDatabase().getHomeListUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(playerName));
+            if (!homeList.isEmpty()) {
+                StringUtil.copyPartialMatches(args[1], homeList, tabCompletions);
+                Collections.sort(tabCompletions);
+                return tabCompletions;
             } else {
-                StringUtil.copyPartialMatches(args.get(3), invitedPlayersList, tabCompletions);
-                event.setCompletions(tabCompletions);
-                event.setHandled(true);
+                return null;
             }
         }
 
-    }
+        if (args.length == 3) {
+            StringUtil.copyPartialMatches(args[2], subCommands, tabCompletions);
+            Collections.sort(tabCompletions);
+            return tabCompletions;
+        }
 
+        if (args.length == 4) {
+            String subCommand = args[2];
+
+            if (subCommand.equalsIgnoreCase("privacy")) {
+                StringUtil.copyPartialMatches(args[3], privacyStatusOptions, tabCompletions);
+                Collections.sort(tabCompletions);
+                return tabCompletions;
+            } else if (subCommand.equalsIgnoreCase("invite")) {
+                List<String> onlinePlayersList = new ArrayList<>();
+
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    onlinePlayersList.add(onlinePlayer.getName());
+                }
+
+                StringUtil.copyPartialMatches(args[3], onlinePlayersList, tabCompletions);
+                Collections.sort(tabCompletions);
+                return tabCompletions;
+            } else if (subCommand.equalsIgnoreCase("uninvite")) {
+                String playerName = args[0];
+                String homeName = args[1];
+
+                List<String> invitedPlayersList = plugin.getRDatabase().getHomeInvitedPlayers(uuidFetcher.getOfflinePlayerUUID(playerName), homeName);
+                if (!invitedPlayersList.isEmpty()) {
+                    StringUtil.copyPartialMatches(args[3], invitedPlayersList, tabCompletions);
+                    Collections.sort(tabCompletions);
+                    return tabCompletions;
+                } else {
+                    return null;
+                    }
+                }
+
+            }
+
+        return tabCompletions;
+    }
 }

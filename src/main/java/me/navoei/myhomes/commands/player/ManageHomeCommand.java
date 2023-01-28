@@ -260,12 +260,16 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
         List<String> tabCompletions = new ArrayList<>();
         List<String> subCommands = new ArrayList<>(Arrays.asList(SUB_COMMANDS));
         List<String> privacyStatusOptions = new ArrayList<>(Arrays.asList(PRIVACY_STATUS_OPTIONS));
-        List<String> homeList = plugin.getRDatabase().getHomeList(player).join();
 
-        if (!homeList.isEmpty() && args.length == 1) {
-            StringUtil.copyPartialMatches(args[0], homeList, tabCompletions);
-            Collections.sort(tabCompletions);
-            return tabCompletions;
+        if (args.length == 1) {
+            List<String> homeList = plugin.getRDatabase().getHomeList(player).join();
+            if (!homeList.isEmpty()) {
+                StringUtil.copyPartialMatches(args[0], homeList, tabCompletions);
+                Collections.sort(tabCompletions);
+                return tabCompletions;
+            } else {
+                return null;
+            }
         }
 
         if (args.length >= 2 && plugin.getRDatabase().getHome(player, args[0]).join().isEmpty()) {
@@ -293,7 +297,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
 
             } else if (args[1].equalsIgnoreCase("uninvite")) {
 
-                String homeName = plugin.getRDatabase().getHomeInfo(player, args[0]).join().get(0);
+                String homeName = args[0];
                 List<String> invitedPlayersList = plugin.getRDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName);
                 invitedPlayersList.removeAll(Collections.singletonList(null));
 
@@ -307,6 +311,6 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        return tabCompletions;
+        return null;
     }
 }
