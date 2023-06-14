@@ -1,10 +1,10 @@
 name: MyHomes
-version: '${project.version}'
 main: me.navoei.myhomes.MyHomes
-api-version: 1.19
+api-version: '1.20'
+version: '${project.version}'
 prefix: MyHomes
 authors: [ Navoei ]
-description: A homes plugin with UUID support. Allows players to invite others to their sethome, as well as setting it to be public or private.
+description: A home plugin with UUID support. Allows players to invite others to their homes, as well as setting it to be public or private.
 commands:
   importolddatabase:
     description: Converts old database from MyHome. Hoewever, this command can only be run from console.

@@ -135,6 +135,7 @@ public final class MyHomes extends JavaPlugin {
 
 
 /*
+
 Player Commands:
 /sethome
 /sethome <homename>
@@ -172,4 +173,4 @@ Admin Commands: (Some commands could be put without spaces to reduce conflicts.)
 
 /showhomeinvites <player>
 
- */
+*/
