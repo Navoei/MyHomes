@@ -23,7 +23,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
     MyHomes plugin = MyHomes.getInstance();
     BukkitScheduler scheduler = plugin.getServer().getScheduler();
     Fetcher uuidFetcher = new Fetcher();
-    private final String[] SUB_COMMANDS = { "invite", "uninvite", "listinvites", "privacy", "info" };
+    private final String[] SUB_COMMANDS = { "invite", "uninvite", "listinvites", "privacy", "info", "rename" };
     private final String[] PRIVACY_STATUS_OPTIONS = { "private", "public" };
 
     @Override
@@ -62,6 +62,8 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        String playerUUID = player.getUniqueId().toString();
+
         if (args[1].equalsIgnoreCase("invite")) {
 
             if (args.length != 3) {
@@ -80,7 +82,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
 
                 if (result_playedBefore) {
 
-                    plugin.getRDatabase().getHomeInvitedPlayersAsync(player.getUniqueId().toString(), homeName).thenAccept(result_homeInvitedPlayers -> {
+                    plugin.getRDatabase().getHomeInvitedPlayersAsync(playerUUID, homeName).thenAccept(result_homeInvitedPlayers -> {
 
                         if (result_homeInvitedPlayers.toString().toLowerCase().contains(playerName.toLowerCase())) {
                             if (homeName.equalsIgnoreCase("Home")) {
@@ -136,7 +138,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            plugin.getRDatabase().getHomeInvitedPlayersAsync(player.getUniqueId().toString(), homeName).thenAccept(result_homeInvitedPlayers -> {
+            plugin.getRDatabase().getHomeInvitedPlayersAsync(playerUUID, homeName).thenAccept(result_homeInvitedPlayers -> {
 
                 if (!result_homeInvitedPlayers.toString().toLowerCase().contains(playerName.toLowerCase())) {
                     if (homeName.equalsIgnoreCase("Home")) {
@@ -164,7 +166,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            plugin.getRDatabase().getHomeInvitedPlayersAsync(player.getUniqueId().toString(), homeName).thenAccept(result_homeInvitedPlayersList -> {
+            plugin.getRDatabase().getHomeInvitedPlayersAsync(playerUUID, homeName).thenAccept(result_homeInvitedPlayersList -> {
                 String invitedPlayersList = result_homeInvitedPlayersList.toString().substring(1, result_homeInvitedPlayersList.toString().length()-1);
 
                 if (invitedPlayersList.isEmpty()) {
@@ -237,11 +239,33 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
+        } else if (args[1].equalsIgnoreCase("rename")) {
+            if (args.length != 3) {
+                sender.sendMessage(Lang.PREFIX.toString() + Lang.INVALID_ARGUMENTS);
+                return true;
+            }
+
+            String newHomeName = args[2];
+            if (homeName.equalsIgnoreCase(newHomeName)) {
+                player.sendMessage(Lang.PREFIX + Lang.RENAME_HOME_SAME_NAME.toString().replace("%home%", newHomeName));
+                return true;
+            }
+            if (!newHomeName.matches("[a-zA-Z0-9]*")) {
+                player.sendMessage(Lang.PREFIX.toString() + Lang.INVALID_CHARACTERS);
+                return true;
+            }
+
+            scheduler.runTaskAsynchronously(plugin, () -> {
+                plugin.getRDatabase().updateHomeName(playerUUID, homeName, newHomeName);
+                plugin.getRDatabase().updateInviteColumnsNewHomeName(playerUUID, homeName, newHomeName);
+                player.sendMessage(Lang.PREFIX + Lang.RENAME_HOME.toString().replace("%previous_home_name%", homeName).replace("%new_home_name%", newHomeName));
+            });
+            return true;
+
         } else {
             player.sendMessage(Lang.PREFIX.toString() + Lang.INVALID_ARGUMENTS);
             return true;
         }
-
     }
 
     @Override

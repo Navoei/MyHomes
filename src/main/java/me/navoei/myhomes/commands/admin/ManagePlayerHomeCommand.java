@@ -30,7 +30,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
     MyHomes plugin = MyHomes.getInstance();
     BukkitScheduler scheduler = plugin.getServer().getScheduler();
     Fetcher uuidFetcher = new Fetcher();
-    private final String[] SUB_COMMANDS = { "invite", "uninvite", "privacy", "set", "delete", "listinvites", "info" };
+    private final String[] SUB_COMMANDS = { "invite", "uninvite", "privacy", "set", "delete", "listinvites", "info", "rename" };
     private final String[] PRIVACY_STATUS_OPTIONS = { "private", "public" };
 
     @Override
@@ -201,6 +201,31 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
                     });
                 });
                 return true;
+            } else if (args[2].equalsIgnoreCase("rename")) {
+                uuidFetcher.getOfflinePlayerUUIDFromMojang(playerName).thenAccept(result_playerUUID -> {
+                   plugin.getRDatabase().getHomeUsingHomeownerUUID(result_playerUUID, homeName).thenAccept(result_home -> {
+                       if (result_home.isEmpty()) {
+                           sender.sendMessage(Lang.PREFIX + playerHasNoHome);
+                           return;
+                       }
+                       String newHomeName = args[3];
+
+                       if (homeName.equalsIgnoreCase(newHomeName)) {
+                           sender.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_SAME_NAME.toString().replace("%home%", newHomeName));
+                           return;
+                       }
+                       if (!newHomeName.matches("[a-zA-Z0-9]*")) {
+                           sender.sendMessage(Lang.PREFIX.toString() + Lang.INVALID_CHARACTERS);
+                           return;
+                       }
+
+                       scheduler.runTaskAsynchronously(plugin, () -> {
+                           plugin.getRDatabase().updateHomeName(result_playerUUID, homeName, newHomeName);
+                           plugin.getRDatabase().updateInviteColumnsNewHomeName(result_playerUUID, homeName, newHomeName);
+                           sender.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_RENAME_HOME.toString().replace("%homeowner%", playerName).replace("%previous_home_name%", homeName).replace("%new_home_name%", newHomeName));
+                       });
+                   });
+                });
             } else {
                 sender.sendMessage(Lang.PREFIX.toString() + Lang.INVALID_ARGUMENTS);
             }

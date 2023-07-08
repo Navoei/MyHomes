@@ -32,6 +32,8 @@ public enum Lang {
     HOME_NOT_EXISTS("homenotexist", "&cThis home does not exist."),
     HOME_DELETED("deletehome", "&aYour home has been deleted."),
     HOME_DELETED_SPECIFIED("deletespecifiedhome", "&aYour home, %home%, has been deleted."),
+    RENAME_HOME("renamehome", "&aYour home, %home_name%, has been renamed to %new_home_name%."),
+    RENAME_HOME_SAME_NAME("renamehome_samename", "&aThe home is already named %home%."),
     PLAYER_NOT_INVITED("playernotinvited", "&cYou are not invited to %player%'s home."),
     PLAYER_NOT_INVITED_SPECIFIED("playernotinvitedspecified", "&cYou are not invited to %home%."),
     PLAYER_HAS_NO_HOME("playerhasnohome", "&cYou do not have a home."),
@@ -77,7 +79,9 @@ public enum Lang {
     MANAGE_HOMES_UPDATED_LOCATION_DEFAULT_HOME("managehomes_updatedlocationdefaulthome", "&aYou have updated the location of %homeowner%'s home."),
     MANAGE_HOMES_UPDATED_LOCATION_SPECIFIED_HOME("managehomes_updatedlocationspecifiedhome", "&aYou have updated the location of %home%, which is owned by %homeowner%."),
     MANAGE_HOMES_DELETE_DEFAULT_HOME("managehomes_deletedefaulthome", "&aYou have deleted %player%'s home."),
-    MANAGE_HOMES_DELETE_SPECIFIED_HOME("managehomes_deletespecifiedhome", "&aYou have deleted %home%, which belonged to %homeowner%.");
+    MANAGE_HOMES_DELETE_SPECIFIED_HOME("managehomes_deletespecifiedhome", "&aYou have deleted %home%, which belonged to %homeowner%."),
+    MANAGE_HOMES_RENAME_HOME("managehomes_renamehome", "&aYou have renamed %homeowner%'s home, %previous_home_name%, to %new_home_name%."),
+    MANAGE_HOMES_SAME_NAME("managehomes_samename", "&aThe home is already named %home%.");
 
     private final String path;
     private final String def;

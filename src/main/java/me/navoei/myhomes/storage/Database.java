@@ -198,6 +198,28 @@ public abstract class Database {
         }
     }
 
+    public void updateHomeName(String homeownerUUID, String oldHomeName, String newHomeName) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = getSQLConnection();
+            ps = conn.prepareStatement("UPDATE " + homesTable + " SET home_name = ? WHERE player_uuid = '"+homeownerUUID+"' AND home_name LIKE '"+oldHomeName+"';");
+            ps.setString(1, newHomeName);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
     public void deleteHome(Player player, String homeName) {
         Connection conn = null;
         PreparedStatement ps = null;
@@ -568,6 +590,28 @@ public abstract class Database {
         try {
             conn = getSQLConnection();
             ps = conn.prepareStatement("DELETE FROM " + invitesTable + " WHERE homeowner_uuid = '"+homeownerUUID+"' AND home_name LIKE '"+homeName+"';");
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
+    public void updateInviteColumnsNewHomeName(String homeownerUUID, String oldHomeName, String newHomeName) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = getSQLConnection();
+            ps = conn.prepareStatement("UPDATE " +invitesTable+ " SET home_name = ? WHERE homeowner_uuid = '"+homeownerUUID+"' AND home_name LIKE '"+oldHomeName+"';");
+            ps.setString(1, newHomeName);
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
