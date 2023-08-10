@@ -2,7 +2,6 @@ package me.navoei.myhomes.uuid;
 
 import org.bukkit.Bukkit;
 
-import java.io.FileNotFoundException;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 

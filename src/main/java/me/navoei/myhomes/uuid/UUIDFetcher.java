@@ -80,6 +80,9 @@ public final class UUIDFetcher {
         if (name.isEmpty()) return null;
 
         String output = callURL(UUID_URL + name);
+
+        if (output.isEmpty()) return null;
+
         Matcher m = UUID_PATTERN.matcher(output);
         if (m.find()) {
             return insertDashes(m.group(1));
@@ -122,7 +125,7 @@ public final class UUIDFetcher {
                 }
             }
         } catch (Throwable t) {
-            t.printStackTrace();
+            return sb.toString();
         } finally {
             if (br != null) {
                 try {

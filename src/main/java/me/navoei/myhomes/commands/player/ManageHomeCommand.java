@@ -312,8 +312,12 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 List<String> onlinePlayersList = new ArrayList<>();
 
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    onlinePlayersList.add(onlinePlayer.getName());
+                    if (player.canSee(onlinePlayer)) {
+                        onlinePlayersList.add(onlinePlayer.getName());
+                    }
                 }
+
+                if (onlinePlayersList.isEmpty()) return tabCompletions;
 
                 StringUtil.copyPartialMatches(args[2], onlinePlayersList, tabCompletions);
                 Collections.sort(tabCompletions);

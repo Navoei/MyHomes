@@ -53,7 +53,7 @@ public class SetHomeCommand implements CommandExecutor {
                     return;
                 }
 
-                if (result_homeList.size() >= maxHomes && !result_homeList.toString().toLowerCase().contains(args[0].toLowerCase())) {
+                if (result_homeList.size() >= maxHomes && !result_homeList.contains(args[0].toLowerCase())) {
                     player.sendMessage(exceededHomes);
                     return;
                 }

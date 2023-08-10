@@ -15,6 +15,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
@@ -214,6 +215,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
                            sender.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_SAME_NAME.toString().replace("%home%", newHomeName));
                            return;
                        }
+
                        if (!newHomeName.matches("[a-zA-Z0-9]*")) {
                            sender.sendMessage(Lang.PREFIX.toString() + Lang.INVALID_CHARACTERS);
                            return;
@@ -400,6 +402,12 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
             return null;
         }
 
+        if (!(sender instanceof Player)) {
+            return null;
+        }
+
+        Player player = (Player) sender;
+
         List<String> tabCompletions = new ArrayList<>();
         List<String> subCommands = new ArrayList<>(Arrays.asList(SUB_COMMANDS));
         List<String> privacyStatusOptions = new ArrayList<>(Arrays.asList(PRIVACY_STATUS_OPTIONS));
@@ -445,12 +453,17 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
                 List<String> onlinePlayersList = new ArrayList<>();
 
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    onlinePlayersList.add(onlinePlayer.getName());
+                    if (player.canSee(onlinePlayer)) {
+                        onlinePlayersList.add(onlinePlayer.getName());
+                    }
                 }
+
+                if (onlinePlayersList.isEmpty()) return tabCompletions;
 
                 StringUtil.copyPartialMatches(args[3], onlinePlayersList, tabCompletions);
                 Collections.sort(tabCompletions);
                 return tabCompletions;
+
             } else if (subCommand.equalsIgnoreCase("uninvite")) {
                 String playerName = args[0];
                 String homeName = args[1];
