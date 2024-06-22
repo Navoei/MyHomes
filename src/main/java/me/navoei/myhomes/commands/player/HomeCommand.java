@@ -46,7 +46,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
 
         plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
 
-            if (args.length>0 && !result_homeList.toString().toLowerCase().contains(args[0].toLowerCase())) {
+            if (args.length>0 && result_homeList.stream().noneMatch(args[0]::equalsIgnoreCase)) {
 
                 uuidFetcher.getOfflinePlayerUUIDFromMojang(args[0]).thenAccept(result_homeownerUUID -> {
 
@@ -58,13 +58,13 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
                                 return;
                             }
 
-                            if (result_homeInvitedPlayers.contains(player.getName()) || result_homePrivacyStatus.contains("public")) {
+                            if (result_homeInvitedPlayers.stream().anyMatch(player.getName()::equalsIgnoreCase) || result_homePrivacyStatus.stream().anyMatch("public"::equalsIgnoreCase)) {
                                 World world = MyHomes.getInstance().getServer().getWorld(result_home.get(0));
                                 Location homeLocation = new Location(world, Double.parseDouble(result_home.get(1)), Double.parseDouble(result_home.get(2)), Double.parseDouble(result_home.get(3)), Float.parseFloat(result_home.get(4)), Float.parseFloat(result_home.get(5)));
 
                                 player.teleport(homeLocation);
                                 player.sendMessage(Lang.PREFIX + Lang.HOME_OTHER.toString().replace("%player%", args[0]));
-                            } else if (!result_homeInvitedPlayers.contains(player.getName())) {
+                            } else if (result_homeInvitedPlayers.stream().noneMatch(player.getName()::equalsIgnoreCase)) {
                                 player.sendMessage(Lang.PREFIX + Lang.PLAYER_NOT_INVITED.toString().replace("%player%", args[0]));
                             }
 
@@ -86,7 +86,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
                                 return;
                             }
 
-                            if (result_homePrivacyStatus.contains("public") || result_homeInvitedPlayers.contains(player.getName())) {
+                            if (result_homePrivacyStatus.stream().anyMatch("public"::equalsIgnoreCase) || result_homeInvitedPlayers.stream().anyMatch(player.getName()::equalsIgnoreCase)) {
                                 World world = plugin.getServer().getWorld(result_home.get(0));
                                 Location homeLocation = new Location(world, Double.parseDouble(result_home.get(1)), Double.parseDouble(result_home.get(2)), Double.parseDouble(result_home.get(3)), Float.parseFloat(result_home.get(4)), Float.parseFloat(result_home.get(5)));
 
@@ -96,7 +96,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
                                 } else {
                                     player.sendMessage(Lang.PREFIX + Lang.SPECIFIED_HOME.toString().replace("%home%", homeName));
                                 }
-                            } else if (!result_homeInvitedPlayers.contains(player.getName())) {
+                            } else if (result_homeInvitedPlayers.stream().noneMatch(player.getName()::equalsIgnoreCase)) {
                                 if (homeName.equalsIgnoreCase("home")) {
                                     player.sendMessage(Lang.PREFIX + Lang.PLAYER_NOT_INVITED.toString().replace("%player%", args[0]));
                                 } else {

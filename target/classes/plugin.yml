@@ -1,7 +1,7 @@
 name: MyHomes
 main: me.navoei.myhomes.MyHomes
 api-version: '1.20'
-version: '1.2.3'
+version: '1.2.5'
 prefix: MyHomes
 authors: [ Navoei ]
 description: A home plugin with UUID support. Allows players to invite others to their homes, as well as setting it to be public or private.
@@ -47,5 +47,7 @@ permissions:
     description: Allows players to teleport to homes.
   myhomes.listinvites:
     description: Allows players to show homes they are invited to.
+  myhomes.maxhomebyass:
+    description: Allows players to bypass the maximum home limit.
   myhomes.manageplayerhome:
     description: Allows admins to manage other player's homes as well as listing their homes and showing which homes they are invited to.

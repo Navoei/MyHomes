@@ -58,7 +58,6 @@ public class ListInvitesCommand implements CommandExecutor {
             }
 
         });
-
         return false;
     }
 }

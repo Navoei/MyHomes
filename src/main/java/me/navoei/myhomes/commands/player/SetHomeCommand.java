@@ -7,7 +7,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.scheduler.BukkitScheduler;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SetHomeCommand implements CommandExecutor {
 
@@ -36,10 +40,22 @@ public class SetHomeCommand implements CommandExecutor {
 
         plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
 
-            int maxHomes = plugin.getConfig().getInt("maximumhomes");
+            AtomicInteger maxHomes = new AtomicInteger(plugin.getConfig().getInt("maximumhomes"));
+
+            List<PermissionAttachmentInfo> effectivePermissions = player.getEffectivePermissions().stream().toList();
+            effectivePermissions.forEach(permissionAttachmentInfo -> {
+               String permission = permissionAttachmentInfo.getPermission().toLowerCase();
+               if (permission.startsWith("myhomes.maximumhomes.")) {
+                   int maxHomesPermission = Integer.parseInt(permission.substring(21));
+                   if (maxHomesPermission > maxHomes.get()) {
+                       maxHomes.set(maxHomesPermission);
+                   }
+               }
+            });
+
             int characterLimit = plugin.getConfig().getInt("characterlimit");
 
-            String exceededHomes = Lang.PREFIX + Lang.TOO_MANY_HOMES.toString().replace("%maximum_number_of_homes%", Integer.toString(maxHomes));
+            String exceededHomes = Lang.PREFIX + Lang.TOO_MANY_HOMES.toString().replace("%maximum_number_of_homes%", Integer.toString(maxHomes.get()));
 
             if (args.length == 1) {
 
@@ -53,7 +69,7 @@ public class SetHomeCommand implements CommandExecutor {
                     return;
                 }
 
-                if (result_homeList.size() >= maxHomes && !result_homeList.contains(args[0].toLowerCase())) {
+                if (result_homeList.size() >= maxHomes.get() && result_homeList.stream().noneMatch(args[0]::equalsIgnoreCase) && !sender.hasPermission("myhomes.maxhomebypass")) {
                     player.sendMessage(exceededHomes);
                     return;
                 }
@@ -85,7 +101,7 @@ public class SetHomeCommand implements CommandExecutor {
                 return;
             }
 
-            if (result_homeList.size() >= maxHomes && !result_homeList.toString().toLowerCase().contains("home")) {
+            if (result_homeList.size() >= maxHomes.get() && result_homeList.stream().noneMatch("home"::equalsIgnoreCase) && !player.hasPermission("myhomes.maxhomebypass")) {
                 player.sendMessage(exceededHomes);
                 return;
             }

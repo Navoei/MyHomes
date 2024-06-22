@@ -78,13 +78,13 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            uuidFetcher.checkPlayedBefore(args[2]).thenAccept(result_playedBefore -> {
+            uuidFetcher.checkPlayedBefore(playerName).thenAccept(result_playedBefore -> {
 
                 if (result_playedBefore) {
 
                     plugin.getRDatabase().getHomeInvitedPlayersAsync(playerUUID, homeName).thenAccept(result_homeInvitedPlayers -> {
 
-                        if (result_homeInvitedPlayers.toString().toLowerCase().contains(playerName.toLowerCase())) {
+                        if (result_homeInvitedPlayers.stream().anyMatch(playerName::equalsIgnoreCase)) {
                             if (homeName.equalsIgnoreCase("Home")) {
                                 player.sendMessage(Lang.PREFIX + Lang.ALREADY_INVITED_TO_DEFAULT_HOME.toString().replace("%player%", playerName));
                             } else {
@@ -140,7 +140,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
 
             plugin.getRDatabase().getHomeInvitedPlayersAsync(playerUUID, homeName).thenAccept(result_homeInvitedPlayers -> {
 
-                if (!result_homeInvitedPlayers.toString().toLowerCase().contains(playerName.toLowerCase())) {
+                if (result_homeInvitedPlayers.stream().noneMatch(playerName::equalsIgnoreCase)) {
                     if (homeName.equalsIgnoreCase("Home")) {
                         player.sendMessage(Lang.PREFIX + Lang.NOT_INVITED_TO_DEFAULT_HOME.toString().replace("%player%", playerName));
                     } else {
