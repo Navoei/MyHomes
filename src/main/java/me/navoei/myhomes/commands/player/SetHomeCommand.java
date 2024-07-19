@@ -41,7 +41,6 @@ public class SetHomeCommand implements CommandExecutor {
         plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
 
             AtomicInteger maxHomes = new AtomicInteger(plugin.getConfig().getInt("maximumhomes"));
-
             List<PermissionAttachmentInfo> effectivePermissions = player.getEffectivePermissions().stream().toList();
             effectivePermissions.forEach(permissionAttachmentInfo -> {
                String permission = permissionAttachmentInfo.getPermission().toLowerCase();

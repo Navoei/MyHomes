@@ -43,7 +43,7 @@ public class DeleteHomeCommand implements CommandExecutor, TabCompleter {
 
             plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
 
-                if (result_homeList.stream().noneMatch(args[0]::equalsIgnoreCase) && !args[0].matches("[a-zA-Z0-9]*")) {
+                if (result_homeList.stream().noneMatch(args[0]::equalsIgnoreCase) || !args[0].matches("[a-zA-Z0-9]*")) {
                     player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
                     return;
                 }

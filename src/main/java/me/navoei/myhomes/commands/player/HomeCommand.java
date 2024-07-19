@@ -10,6 +10,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.StringUtil;
 
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class HomeCommand implements CommandExecutor, TabCompleter {
 
@@ -45,6 +47,22 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
         }
 
         plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
+            AtomicInteger maxHomes = new AtomicInteger(plugin.getConfig().getInt("maximumhomes"));
+            List<PermissionAttachmentInfo> effectivePermissions = player.getEffectivePermissions().stream().toList();
+            effectivePermissions.forEach(permissionAttachmentInfo -> {
+                String permission = permissionAttachmentInfo.getPermission().toLowerCase();
+                if (permission.startsWith("myhomes.maximumhomes.")) {
+                    int maxHomesPermission = Integer.parseInt(permission.substring(21));
+                    if (maxHomesPermission > maxHomes.get()) {
+                        maxHomes.set(maxHomesPermission);
+                    }
+                }
+            });
+            String exceededHomes = Lang.PREFIX + Lang.TOO_MANY_HOMES.toString().replace("%maximum_number_of_homes%", Integer.toString(maxHomes.get()));
+            if (result_homeList.size() > maxHomes.get() && !sender.hasPermission("myhomes.maxhomebypass")) {
+                player.sendMessage(exceededHomes);
+                return;
+            }
 
             if (args.length>0 && result_homeList.stream().noneMatch(args[0]::equalsIgnoreCase)) {
 
