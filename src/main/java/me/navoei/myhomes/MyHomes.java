@@ -47,14 +47,14 @@ public final class MyHomes extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new ManagePlayerHomeCommand(), this);
             getServer().getPluginManager().registerEvents(new RespawnEvent(), this);
 
-            log.info("[MyHomes] Plugin enabled!");
+            log.info("Plugin enabled!");
 
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        log.info("[MyHomes] Plugin disabled!");
+        log.info("Plugin disabled!");
     }
 
     public Database getRDatabase() {

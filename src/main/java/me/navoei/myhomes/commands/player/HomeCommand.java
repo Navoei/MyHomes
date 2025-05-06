@@ -10,6 +10,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.StringUtil;
@@ -80,7 +81,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
                                 World world = MyHomes.getInstance().getServer().getWorld(result_home.get(0));
                                 Location homeLocation = new Location(world, Double.parseDouble(result_home.get(1)), Double.parseDouble(result_home.get(2)), Double.parseDouble(result_home.get(3)), Float.parseFloat(result_home.get(4)), Float.parseFloat(result_home.get(5)));
 
-                                player.teleport(homeLocation);
+                                player.teleportAsync(homeLocation, PlayerTeleportEvent.TeleportCause.COMMAND);
                                 player.sendMessage(Lang.PREFIX + Lang.HOME_OTHER.toString().replace("%player%", args[0]));
                             } else if (result_homeInvitedPlayers.stream().noneMatch(player.getName()::equalsIgnoreCase)) {
                                 player.sendMessage(Lang.PREFIX + Lang.PLAYER_NOT_INVITED.toString().replace("%player%", args[0]));
@@ -108,7 +109,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
                                 World world = plugin.getServer().getWorld(result_home.get(0));
                                 Location homeLocation = new Location(world, Double.parseDouble(result_home.get(1)), Double.parseDouble(result_home.get(2)), Double.parseDouble(result_home.get(3)), Float.parseFloat(result_home.get(4)), Float.parseFloat(result_home.get(5)));
 
-                                player.teleport(homeLocation);
+                                player.teleportAsync(homeLocation, PlayerTeleportEvent.TeleportCause.COMMAND);
                                 if (homeName.equalsIgnoreCase("home")) {
                                     player.sendMessage(Lang.PREFIX + Lang.HOME_OTHER.toString().replace("%player%", args[0]));
                                 } else {
@@ -138,7 +139,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
                             World world = plugin.getServer().getWorld(result_home.get(0));
                             Location homeLocation = new Location(world, Double.parseDouble(result_home.get(1)), Double.parseDouble(result_home.get(2)), Double.parseDouble(result_home.get(3)), Float.parseFloat(result_home.get(4)), Float.parseFloat(result_home.get(5)));
 
-                            player.teleport(homeLocation);
+                            player.teleportAsync(homeLocation, PlayerTeleportEvent.TeleportCause.COMMAND);
                             player.sendMessage(Lang.PREFIX.toString() + Lang.HOME);
                         }
                     }));
@@ -158,7 +159,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
                         } else {
                             World world = plugin.getServer().getWorld(result_home.get(0));
                             Location homeLocation = new Location(world, Double.parseDouble(result_home.get(1)), Double.parseDouble(result_home.get(2)), Double.parseDouble(result_home.get(3)), Float.parseFloat(result_home.get(4)), Float.parseFloat(result_home.get(5)));
-                            player.teleport(homeLocation);
+                            player.teleportAsync(homeLocation, PlayerTeleportEvent.TeleportCause.COMMAND);
 
                             if (homeName.equalsIgnoreCase("Home")) {
                                 player.sendMessage(Lang.PREFIX.toString() + Lang.HOME);
@@ -194,6 +195,8 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
         homesList.removeAll(Collections.singletonList(null));
 
         HashMap<String, ArrayList<String>> inviteList = plugin.getRDatabase().getHomeInviteList(player.getUniqueId().toString()).join();
+        List<String> invitedListKeys = new ArrayList<>(inviteList.keySet().stream().toList());
+        invitedListKeys.replaceAll(String::toLowerCase);
 
         List<String> tabCompletions = new ArrayList<>();
 
@@ -203,8 +206,12 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
             return tabCompletions;
         }
 
-        if (!args[0].isEmpty() && args.length == 2 && inviteList.containsKey(args[0])) {
-            List<String> invitedHomesList = inviteList.get(args[0]);
+        if (!args[0].isEmpty() && args.length == 2 && invitedListKeys.contains(args[0].toLowerCase())) {
+
+            int invitedListKeysIndex = invitedListKeys.indexOf(args[0].toLowerCase());
+            String invitedHomeOwner = inviteList.keySet().stream().toList().get(invitedListKeysIndex);
+
+            List<String> invitedHomesList = inviteList.get(invitedHomeOwner);
             StringUtil.copyPartialMatches(args[1], invitedHomesList, tabCompletions);
             Collections.sort(tabCompletions);
             return tabCompletions;

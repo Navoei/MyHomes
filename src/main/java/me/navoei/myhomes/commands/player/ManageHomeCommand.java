@@ -102,15 +102,26 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                                 invitedPlayer.sendMessage(Lang.PREFIX + Lang.MESSAGE_TO_INVITED_PLAYER_DEFAULT_HOME.toString().replace("%homeowner%", player.getName()));
 
                             } else {
-                                scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setInviteColumns(player, homeName, uuidFetcher.getOfflinePlayerUUIDFromMojang(playerName).join()));
-                                player.sendMessage(Lang.PREFIX + Lang.INVITED_TO_SPECIFIED_HOME.toString().replace("%player%", playerName).replace("%home%", homeName));
+                                plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
+                                    List<String> result_homeListLowerCase = new ArrayList<>();
+                                    for (String home_name : result_homeList) {
+                                        result_homeListLowerCase.add(home_name.toLowerCase());
+                                    }
+                                    result_homeListLowerCase.replaceAll(String::toLowerCase);
+                                    String homeNameLowerCase = homeName.toLowerCase();
+                                    int homeNameWithCaseIndex = result_homeListLowerCase.indexOf(homeNameLowerCase);
+                                    String homeNameWithCase = result_homeList.get(homeNameWithCaseIndex);
 
-                                Player invitedPlayer = plugin.getServer().getPlayer(playerName);
+                                    scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setInviteColumns(player, homeNameWithCase, uuidFetcher.getOfflinePlayerUUIDFromMojang(playerName).join()));
+                                    player.sendMessage(Lang.PREFIX + Lang.INVITED_TO_SPECIFIED_HOME.toString().replace("%player%", playerName).replace("%home%", homeNameWithCase));
 
-                                if (invitedPlayer == null) return;
+                                    Player invitedPlayer = plugin.getServer().getPlayer(playerName);
 
-                                invitedPlayer.sendMessage(Lang.PREFIX + Lang.MESSAGE_TO_INVITED_PLAYER_SPECIFIED_HOME.toString().replace("%home%", homeName).replace("%homeowner%", player.getName()));
+                                    if (invitedPlayer == null) return;
 
+                                    invitedPlayer.sendMessage(Lang.PREFIX + Lang.MESSAGE_TO_INVITED_PLAYER_SPECIFIED_HOME.toString().replace("%home%", homeNameWithCase).replace("%homeowner%", player.getName()));
+
+                                });
                             }
                         }
 

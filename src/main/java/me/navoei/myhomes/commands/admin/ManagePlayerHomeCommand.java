@@ -15,6 +15,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.StringUtil;
@@ -110,14 +111,26 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
                                         invitedPlayer.sendMessage(Lang.PREFIX + Lang.MESSAGE_TO_INVITED_PLAYER_DEFAULT_HOME.toString().replace("%homeowner%", playerName));
 
                                     } else {
-                                        scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setInviteColumnsUsingHomeownerUUID(result_playerUUID, homeName, uuidFetcher.getOfflinePlayerUUIDFromMojang(invitedPlayerName).join()));
-                                        sender.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_INVITED_TO_SPECIFIED_HOME.toString().replace("%invited_player%", invitedPlayerName).replace("%home%", homeName).replace("%homeowner%", playerName));
+                                        plugin.getRDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
+                                            List<String> result_homeListLowerCase = new ArrayList<>();
+                                            for (String home_name : result_homeList) {
+                                                result_homeListLowerCase.add(home_name.toLowerCase());
+                                            }
+                                            result_homeListLowerCase.replaceAll(String::toLowerCase);
+                                            String homeNameLowerCase = homeName.toLowerCase();
+                                            int homeNameWithCaseIndex = result_homeListLowerCase.indexOf(homeNameLowerCase);
+                                            String homeNameWithCase = result_homeList.get(homeNameWithCaseIndex);
 
-                                        Player invitedPlayer = plugin.getServer().getPlayer(invitedPlayerName);
+                                            scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setInviteColumnsUsingHomeownerUUID(result_playerUUID, homeNameWithCase, uuidFetcher.getOfflinePlayerUUIDFromMojang(invitedPlayerName).join()));
+                                            sender.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_INVITED_TO_SPECIFIED_HOME.toString().replace("%invited_player%", invitedPlayerName).replace("%home%", homeNameWithCase).replace("%homeowner%", playerName));
 
-                                        if (invitedPlayer == null) return;
+                                            Player invitedPlayer = plugin.getServer().getPlayer(invitedPlayerName);
 
-                                        invitedPlayer.sendMessage(Lang.PREFIX + Lang.MESSAGE_TO_INVITED_PLAYER_SPECIFIED_HOME.toString().replace("%home%", homeName).replace("%homeowner%", playerName));
+                                            if (invitedPlayer == null) return;
+
+                                            invitedPlayer.sendMessage(Lang.PREFIX + Lang.MESSAGE_TO_INVITED_PLAYER_SPECIFIED_HOME.toString().replace("%home%", homeNameWithCase).replace("%homeowner%", playerName));
+
+                                        });
                                     }
                                 }
 
@@ -387,7 +400,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
                         World world = plugin.getServer().getWorld(result_home.get(0));
                         Location homeLocation = new Location(world, Double.parseDouble(result_home.get(1)), Double.parseDouble(result_home.get(2)), Double.parseDouble(result_home.get(3)), Float.parseFloat(result_home.get(4)), Float.parseFloat(result_home.get(5)));
 
-                        player.teleport(homeLocation);
+                        player.teleportAsync(homeLocation, PlayerTeleportEvent.TeleportCause.COMMAND);
 
                         if (homeName.equalsIgnoreCase("home")) {
                             player.sendMessage(Lang.PREFIX + Lang.HOME_OTHER.toString().replace("%player%", playerName));
@@ -420,6 +433,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
         List<String> subCommands = new ArrayList<>(Arrays.asList(SUB_COMMANDS));
         List<String> privacyStatusOptions = new ArrayList<>(Arrays.asList(PRIVACY_STATUS_OPTIONS));
 
+        //Involves the typing the player's name.
         if (args.length == 1) {
             List<String> onlinePlayersList = new ArrayList<>();
 
@@ -432,6 +446,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
             return tabCompletions;
         }
 
+        //Involves typing the player's home.
         if (args.length == 2) {
             String playerName = args[0];
             List<String> homeList = plugin.getRDatabase().getHomeListUsingHomeownerUUID(uuidFetcher.getOfflinePlayerUUID(playerName));
@@ -444,12 +459,14 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
             }
         }
 
+        //Involves typing the action to be performed on thar home.
         if (args.length == 3) {
             StringUtil.copyPartialMatches(args[2], subCommands, tabCompletions);
             Collections.sort(tabCompletions);
             return tabCompletions;
         }
 
+        //Involves the remaining arguments depending on the action that is going to be performed.
         if (args.length == 4) {
             String subCommand = args[2];
 

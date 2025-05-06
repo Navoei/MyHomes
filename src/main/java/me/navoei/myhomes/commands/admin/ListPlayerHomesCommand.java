@@ -32,22 +32,21 @@ public class ListPlayerHomesCommand implements CommandExecutor {
             return true;
         }
 
-        uuidFetcher.getOfflinePlayerUUIDFromMojang(args[0]).thenAccept(result_playerUUID -> plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            List<String> homeList = plugin.getRDatabase().getHomeListUsingHomeownerUUID(result_playerUUID);
+        uuidFetcher.getOfflinePlayerUUIDFromMojang(args[0]).thenAccept(result_playerUUID -> plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> plugin.getRDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
             String playerName = args[0];
-            if (homeList.isEmpty()) {
+            if (result_homeList.isEmpty()) {
                 sender.sendMessage(Lang.PREFIX + Lang.PLAYER_NO_HOMES.toString().replace("%player%", playerName));
                 return;
             }
 
-            String homesList = homeList.toString().substring(1, homeList.toString().length()-1);
+            String homesList = result_homeList.toString().substring(1, result_homeList.toString().length()-1);
 
             List<String> messageList = plugin.getLang().getStringList("listplayerhomes");
 
             for (String message : messageList) {
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message.replace("%player%", playerName).replace("%homes_list%", homesList)));
             }
-        }));
+        })));
         return false;
     }
 }

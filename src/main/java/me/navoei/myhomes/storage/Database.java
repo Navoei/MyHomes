@@ -1,15 +1,14 @@
 package me.navoei.myhomes.storage;
 
+import me.navoei.myhomes.MyHomes;
+import me.navoei.myhomes.uuid.Fetcher;
+import org.bukkit.entity.Player;
+
 import java.io.File;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
-
-import me.navoei.myhomes.uuid.Fetcher;
-import org.bukkit.entity.Player;
-
-import me.navoei.myhomes.MyHomes; // Import main class!
 
 
 public abstract class Database {
@@ -39,6 +38,8 @@ public abstract class Database {
             plugin.getLogger().log(Level.SEVERE, "Unable to retreive connection", ex);
         }
     }
+
+    //MOVE ALL RETURNS INSIDE THE TRY!!!
 
     public void setHomeColumns(Player player, String homeName, Boolean privacy_status) {
         Connection conn = null;
