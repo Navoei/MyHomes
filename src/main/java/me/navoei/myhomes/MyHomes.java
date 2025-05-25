@@ -40,7 +40,6 @@ public final class MyHomes extends JavaPlugin {
             getCommand("deletehome").setExecutor(new DeleteHomeCommand());
             getCommand("home").setExecutor(new HomeCommand());
             getCommand("listinvites").setExecutor(new ListInvitesCommand());
-            getCommand("importolddatabase").setExecutor(new ImportMyHomeCommand());
             getCommand("listplayerhomes").setExecutor(new ListPlayerHomesCommand());
             getCommand("listplayerinvites").setExecutor(new ListPlayerInvitesCommand());
             getCommand("manageplayerhome").setExecutor(new ManagePlayerHomeCommand());
@@ -57,7 +56,7 @@ public final class MyHomes extends JavaPlugin {
         log.info("Plugin disabled!");
     }
 
-    public Database getRDatabase() {
+    public Database getDatabase() {
         return this.database;
     }
 

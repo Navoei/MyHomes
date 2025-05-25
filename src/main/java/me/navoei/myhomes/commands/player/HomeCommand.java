@@ -47,7 +47,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
+        plugin.getDatabase().getHomeList(player).thenAccept(result_homeList -> {
             AtomicInteger maxHomes = new AtomicInteger(plugin.getConfig().getInt("maximumhomes"));
             List<PermissionAttachmentInfo> effectivePermissions = player.getEffectivePermissions().stream().toList();
             effectivePermissions.forEach(permissionAttachmentInfo -> {
@@ -67,11 +67,11 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
 
             if (args.length>0 && result_homeList.stream().noneMatch(args[0]::equalsIgnoreCase)) {
 
-                uuidFetcher.getOfflinePlayerUUIDFromMojang(args[0]).thenAccept(result_homeownerUUID -> {
+                uuidFetcher.getOfflinePlayerUUID(args[0]).thenAccept(result_homeownerUUID -> {
 
                     if (args.length == 1) {
 
-                        plugin.getRDatabase().getHomeUsingHomeownerUUID(result_homeownerUUID, "Home").thenAccept(result_home -> plugin.getRDatabase().getHomeInvitedPlayersAsync(result_homeownerUUID, "Home").thenAccept(result_homeInvitedPlayers -> plugin.getRDatabase().getHomePrivacyStatus(result_homeownerUUID, "Home").thenAccept(result_homePrivacyStatus -> scheduler.runTask(plugin, () -> {
+                        plugin.getDatabase().getHomeUsingHomeownerUUID(result_homeownerUUID, "Home").thenAccept(result_home -> plugin.getDatabase().getHomeInvitedPlayers(result_homeownerUUID, "Home").thenAccept(result_homeInvitedPlayers -> plugin.getDatabase().getHomePrivacyStatus(result_homeownerUUID, "Home").thenAccept(result_homePrivacyStatus -> scheduler.runTask(plugin, () -> {
                             if (result_home.isEmpty()) {
                                 player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
                                 return;
@@ -99,7 +99,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
                             return;
                         }
 
-                        plugin.getRDatabase().getHomeUsingHomeownerUUID(result_homeownerUUID, homeName).thenAccept(result_home -> plugin.getRDatabase().getHomeInvitedPlayersAsync(result_homeownerUUID, homeName).thenAccept(result_homeInvitedPlayers -> plugin.getRDatabase().getHomePrivacyStatus(result_homeownerUUID, homeName).thenAccept(result_homePrivacyStatus -> scheduler.runTask(plugin, () -> {
+                        plugin.getDatabase().getHomeUsingHomeownerUUID(result_homeownerUUID, homeName).thenAccept(result_home -> plugin.getDatabase().getHomeInvitedPlayers(result_homeownerUUID, homeName).thenAccept(result_homeInvitedPlayers -> plugin.getDatabase().getHomePrivacyStatus(result_homeownerUUID, homeName).thenAccept(result_homePrivacyStatus -> scheduler.runTask(plugin, () -> {
                             if (result_home.isEmpty()) {
                                 player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
                                 return;
@@ -132,7 +132,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
             } else {
                 if (args.length == 0) {
 
-                    plugin.getRDatabase().getHome(player, "Home").thenAccept(result_home -> scheduler.runTask(plugin, () -> {
+                    plugin.getDatabase().getHome(player, "Home").thenAccept(result_home -> scheduler.runTask(plugin, () -> {
                         if (result_home.isEmpty()) {
                             player.sendMessage(Lang.PREFIX.toString() + Lang.PLAYER_HAS_NO_HOME);
                         } else {
@@ -153,7 +153,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    plugin.getRDatabase().getHome(player, homeName).thenAccept(result_home -> scheduler.runTask(plugin, () -> {
+                    plugin.getDatabase().getHome(player, homeName).thenAccept(result_home -> scheduler.runTask(plugin, () -> {
                         if (result_home.isEmpty()) {
                             player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
                         } else {
@@ -190,11 +190,11 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
 
         Player player = (Player) sender;
 
-        List<String> homesList = plugin.getRDatabase().getHomeList(player).join();
-        homesList.addAll(plugin.getRDatabase().getHomeInviteList(player.getUniqueId().toString()).join().keySet());
+        List<String> homesList = plugin.getDatabase().getHomeList(player).join();
+        homesList.addAll(plugin.getDatabase().getHomeInviteList(player.getUniqueId().toString()).join().keySet());
         homesList.removeAll(Collections.singletonList(null));
 
-        HashMap<String, ArrayList<String>> inviteList = plugin.getRDatabase().getHomeInviteList(player.getUniqueId().toString()).join();
+        HashMap<String, ArrayList<String>> inviteList = plugin.getDatabase().getHomeInviteList(player.getUniqueId().toString()).join();
         List<String> invitedListKeys = new ArrayList<>(inviteList.keySet().stream().toList());
         invitedListKeys.replaceAll(String::toLowerCase);
 

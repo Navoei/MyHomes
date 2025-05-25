@@ -9,7 +9,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +36,7 @@ public class ListInvitesCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        plugin.getRDatabase().getHomeInviteList(player.getUniqueId().toString()).thenAccept(result_homeInviteList -> {
+        plugin.getDatabase().getHomeInviteList(player.getUniqueId().toString()).thenAccept(result_homeInviteList -> {
             if (result_homeInviteList.isEmpty()) {
                 player.sendMessage(Lang.PREFIX.toString() + Lang.NO_INVITES);
                 return;

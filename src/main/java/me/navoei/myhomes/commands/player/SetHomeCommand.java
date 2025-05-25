@@ -38,7 +38,7 @@ public class SetHomeCommand implements CommandExecutor {
             return true;
         }
 
-        plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
+        plugin.getDatabase().getHomeList(player).thenAccept(result_homeList -> {
 
             AtomicInteger maxHomes = new AtomicInteger(plugin.getConfig().getInt("maximumhomes"));
             List<PermissionAttachmentInfo> effectivePermissions = player.getEffectivePermissions().stream().toList();
@@ -73,11 +73,11 @@ public class SetHomeCommand implements CommandExecutor {
                     return;
                 }
 
-                plugin.getRDatabase().getHomeInfo(player, args[0]).thenAccept(result_homeInfo -> {
+                plugin.getDatabase().getHomeInfo(player, args[0]).thenAccept(result_homeInfo -> {
 
                     if (!result_homeInfo.isEmpty()) {
                         String homeName = result_homeInfo.get(0);
-                        scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().updateHomeLocation(player, homeName));
+                        plugin.getDatabase().updateHomeLocation(player, homeName);
 
                         if (homeName.equalsIgnoreCase("Home")) {
                             player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_UPDATED);
@@ -89,10 +89,10 @@ public class SetHomeCommand implements CommandExecutor {
                     }
 
                     if (args[0].equalsIgnoreCase("Home")) {
-                        scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setHomeColumns(player, "Home", false));
+                        plugin.getDatabase().setHomeColumns(player, "Home", false);
                         player.sendMessage(Lang.PREFIX.toString() + Lang.SET_HOME);
                     } else {
-                        scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setHomeColumns(player, args[0], false));
+                        plugin.getDatabase().setHomeColumns(player, args[0], false);
                         player.sendMessage(Lang.PREFIX + Lang.SET_HOME_SPECIFIED.toString().replace("%home%", args[0]));
                     }
 
@@ -105,14 +105,14 @@ public class SetHomeCommand implements CommandExecutor {
                 return;
             }
 
-            plugin.getRDatabase().getHomeInfo(player, "Home").thenAccept(result_homeInfo -> {
+            plugin.getDatabase().getHomeInfo(player, "Home").thenAccept(result_homeInfo -> {
                 if (!result_homeInfo.isEmpty()) {
-                    scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().updateHomeLocation(player, "Home"));
+                    plugin.getDatabase().updateHomeLocation(player, "Home");
                     player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_UPDATED);
                     return;
                 }
 
-                scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setHomeColumns(player, "Home", false));
+                plugin.getDatabase().setHomeColumns(player, "Home", false);
                 player.sendMessage(Lang.PREFIX.toString() + Lang.SET_HOME);
 
             });

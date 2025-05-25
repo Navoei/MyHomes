@@ -19,7 +19,7 @@ public class RespawnEvent implements Listener {
 
         if (!plugin.getConfig().getBoolean("respawnToHome")) return;
 
-        List<String> home = plugin.getRDatabase().getHome(event.getPlayer(), "Home").join();
+        List<String> home = plugin.getDatabase().getHome(event.getPlayer(), "Home").join();
         if (home.isEmpty()) return;
 
         World world = plugin.getServer().getWorld(home.get(0));

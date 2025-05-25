@@ -34,7 +34,7 @@ public class ListHomesCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
+        plugin.getDatabase().getHomeList(player).thenAccept(result_homeList -> {
             if (result_homeList.isEmpty()) {
                 player.sendMessage(Lang.PREFIX.toString() + Lang.NO_HOMES);
                 return;

@@ -50,7 +50,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
 
         Player player = (Player) sender;
 
-        if (plugin.getRDatabase().getHomeInfo(player, args[0]).join().isEmpty()) {
+        if (plugin.getDatabase().getHomeInfo(player, args[0]).join().isEmpty()) {
             player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
             return true;
         }
@@ -82,7 +82,8 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
 
                 if (result_playedBefore) {
 
-                    plugin.getRDatabase().getHomeInvitedPlayersAsync(playerUUID, homeName).thenAccept(result_homeInvitedPlayers -> {
+                    plugin.getDatabase().getHomeInvitedPlayers(playerUUID, homeName)
+                    .thenAcceptBoth(uuidFetcher.getOfflinePlayerUUID(playerName),(result_homeInvitedPlayers, offlinePlayerUUID) -> {
 
                         if (result_homeInvitedPlayers.stream().anyMatch(playerName::equalsIgnoreCase)) {
                             if (homeName.equalsIgnoreCase("Home")) {
@@ -92,7 +93,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                             }
                         } else {
                             if (homeName.equalsIgnoreCase("Home")) {
-                                scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setInviteColumns(player, "Home", uuidFetcher.getOfflinePlayerUUIDFromMojang(playerName).join()));
+                                plugin.getDatabase().setInviteColumns(player, "Home", offlinePlayerUUID);
                                 player.sendMessage(Lang.PREFIX + Lang.INVITED_TO_DEFAULT_HOME.toString().replace("%player%", playerName));
 
                                 Player invitedPlayer = plugin.getServer().getPlayer(playerName);
@@ -102,7 +103,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                                 invitedPlayer.sendMessage(Lang.PREFIX + Lang.MESSAGE_TO_INVITED_PLAYER_DEFAULT_HOME.toString().replace("%homeowner%", player.getName()));
 
                             } else {
-                                plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
+                                plugin.getDatabase().getHomeList(player).thenAccept(result_homeList -> {
                                     List<String> result_homeListLowerCase = new ArrayList<>();
                                     for (String home_name : result_homeList) {
                                         result_homeListLowerCase.add(home_name.toLowerCase());
@@ -112,7 +113,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                                     int homeNameWithCaseIndex = result_homeListLowerCase.indexOf(homeNameLowerCase);
                                     String homeNameWithCase = result_homeList.get(homeNameWithCaseIndex);
 
-                                    scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().setInviteColumns(player, homeNameWithCase, uuidFetcher.getOfflinePlayerUUIDFromMojang(playerName).join()));
+                                    plugin.getDatabase().setInviteColumns(player, homeNameWithCase, offlinePlayerUUID);
                                     player.sendMessage(Lang.PREFIX + Lang.INVITED_TO_SPECIFIED_HOME.toString().replace("%player%", playerName).replace("%home%", homeNameWithCase));
 
                                     Player invitedPlayer = plugin.getServer().getPlayer(playerName);
@@ -149,7 +150,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            plugin.getRDatabase().getHomeInvitedPlayersAsync(playerUUID, homeName).thenAccept(result_homeInvitedPlayers -> {
+            plugin.getDatabase().getHomeInvitedPlayers(playerUUID, homeName).thenAccept(result_homeInvitedPlayers -> {
 
                 if (result_homeInvitedPlayers.stream().noneMatch(playerName::equalsIgnoreCase)) {
                     if (homeName.equalsIgnoreCase("Home")) {
@@ -158,7 +159,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                         player.sendMessage(Lang.PREFIX + Lang.NOT_INVITED_TO_SPECIFIED_HOME.toString().replace("%player%", playerName).replace("%home%", homeName));
                     }
                 } else {
-                    scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().deleteInviteColumns(player, homeName, uuidFetcher.getOfflinePlayerUUIDFromMojang(playerName).join()));
+                    uuidFetcher.getOfflinePlayerUUID(playerName).thenAccept(result_offlinePlayerUUID -> plugin.getDatabase().deleteInviteColumns(player, homeName, result_offlinePlayerUUID));
                     if (homeName.equalsIgnoreCase("Home")) {
                         player.sendMessage(Lang.PREFIX + Lang.UNINVITED_FROM_DEFAULT_HOME.toString().replace("%player%", playerName));
                     } else {
@@ -177,7 +178,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            plugin.getRDatabase().getHomeInvitedPlayersAsync(playerUUID, homeName).thenAccept(result_homeInvitedPlayersList -> {
+            plugin.getDatabase().getHomeInvitedPlayers(playerUUID, homeName).thenAccept(result_homeInvitedPlayersList -> {
                 String invitedPlayersList = result_homeInvitedPlayersList.toString().substring(1, result_homeInvitedPlayersList.toString().length()-1);
 
                 if (invitedPlayersList.isEmpty()) {
@@ -200,7 +201,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            plugin.getRDatabase().getHomeInfo(player, homeName).thenAccept(result_homeInfo -> {
+            plugin.getDatabase().getHomeInfo(player, homeName).thenAccept(result_homeInfo -> {
 
                 List<String> messageList = plugin.getLang().getStringList("homeinfo");
 
@@ -226,7 +227,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
             }
 
             if (args[2].equalsIgnoreCase("private")) {
-                scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().updatePrivacyStatus(player, homeName, false));
+                plugin.getDatabase().updatePrivacyStatus(player, homeName, false);
 
                 if (homeName.equalsIgnoreCase("Home")) {
                     player.sendMessage(Lang.PREFIX.toString() + Lang.DEFAULT_HOME_PRIVATE);
@@ -236,7 +237,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 return true;
 
             } else if (args[2].equalsIgnoreCase("public")) {
-                scheduler.runTaskAsynchronously(plugin, () -> plugin.getRDatabase().updatePrivacyStatus(player, homeName, true));
+                plugin.getDatabase().updatePrivacyStatus(player, homeName, true);
 
                 if (homeName.equalsIgnoreCase("Home")) {
                     player.sendMessage(Lang.PREFIX.toString() + Lang.DEFAULT_HOME_PUBLIC);
@@ -266,11 +267,10 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            scheduler.runTaskAsynchronously(plugin, () -> {
-                plugin.getRDatabase().updateHomeName(playerUUID, homeName, newHomeName);
-                plugin.getRDatabase().updateInviteColumnsNewHomeName(playerUUID, homeName, newHomeName);
-                player.sendMessage(Lang.PREFIX + Lang.RENAME_HOME.toString().replace("%previous_home_name%", homeName).replace("%new_home_name%", newHomeName));
-            });
+
+            plugin.getDatabase().updateHomeName(playerUUID, homeName, newHomeName);
+            plugin.getDatabase().updateInviteColumnsNewHomeName(playerUUID, homeName, newHomeName);
+            player.sendMessage(Lang.PREFIX + Lang.RENAME_HOME.toString().replace("%previous_home_name%", homeName).replace("%new_home_name%", newHomeName));
             return true;
 
         } else {
@@ -297,7 +297,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
         List<String> privacyStatusOptions = new ArrayList<>(Arrays.asList(PRIVACY_STATUS_OPTIONS));
 
         if (args.length == 1) {
-            List<String> homeList = plugin.getRDatabase().getHomeList(player).join();
+            List<String> homeList = plugin.getDatabase().getHomeList(player).join();
             if (!homeList.isEmpty()) {
                 StringUtil.copyPartialMatches(args[0], homeList, tabCompletions);
                 Collections.sort(tabCompletions);
@@ -307,7 +307,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        if (args.length >= 2 && plugin.getRDatabase().getHome(player, args[0]).join().isEmpty()) {
+        if (args.length >= 2 && plugin.getDatabase().getHome(player, args[0]).join().isEmpty()) {
             return null;
         }
 
@@ -337,7 +337,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
             } else if (args[1].equalsIgnoreCase("uninvite")) {
 
                 String homeName = args[0];
-                List<String> invitedPlayersList = plugin.getRDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName);
+                List<String> invitedPlayersList = plugin.getDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName).join();
                 invitedPlayersList.removeAll(Collections.singletonList(null));
 
                 StringUtil.copyPartialMatches(args[2], invitedPlayersList, tabCompletions);

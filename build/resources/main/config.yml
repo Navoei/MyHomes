@@ -1,0 +1,10 @@
+#Config File for MyHomes
+
+#How many homes can a player set?
+maximumhomes: 3
+
+#How many characters can a home have? In other words, how many letters can a home's name have?
+characterlimit: 32
+
+#Should players respawn to their default home?
+respawnToHome: true

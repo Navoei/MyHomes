@@ -41,14 +41,14 @@ public class DeleteHomeCommand implements CommandExecutor, TabCompleter {
 
         if (args.length == 1) {
 
-            plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
+            plugin.getDatabase().getHomeList(player).thenAccept(result_homeList -> {
 
                 if (result_homeList.stream().noneMatch(args[0]::equalsIgnoreCase) || !args[0].matches("[a-zA-Z0-9]*")) {
                     player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
                     return;
                 }
 
-                plugin.getRDatabase().getHomeInfo(player, args[0]).thenAccept(result_homeInfo -> {
+                plugin.getDatabase().getHomeInfo(player, args[0]).thenAccept(result_homeInfo -> {
                     String homeName = result_homeInfo.get(0);
 
                     if (homeName.isEmpty()) {
@@ -56,10 +56,8 @@ public class DeleteHomeCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    scheduler.runTaskAsynchronously(plugin, () -> {
-                        plugin.getRDatabase().deleteHome(player, homeName);
-                        plugin.getRDatabase().deleteAllInviteColumns(player, homeName);
-                    });
+                    plugin.getDatabase().deleteHome(player, homeName);
+                    plugin.getDatabase().deleteAllInviteColumns(player, homeName);
 
                     if (homeName.equalsIgnoreCase("home")) {
                         player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_DELETED);
@@ -74,13 +72,13 @@ public class DeleteHomeCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        plugin.getRDatabase().getHomeList(player).thenAccept(result_homeList -> {
+        plugin.getDatabase().getHomeList(player).thenAccept(result_homeList -> {
             if (result_homeList.stream().noneMatch("home"::equalsIgnoreCase)) {
                 player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
                 return;
             }
 
-            plugin.getRDatabase().getHomeInfo(player, "Home").thenAccept(result_homeInfo -> {
+            plugin.getDatabase().getHomeInfo(player, "Home").thenAccept(result_homeInfo -> {
                 String homeName = result_homeInfo.get(0);
 
                 if (homeName.isEmpty()) {
@@ -89,8 +87,8 @@ public class DeleteHomeCommand implements CommandExecutor, TabCompleter {
                 }
 
                 scheduler.runTaskAsynchronously(plugin, () -> {
-                    plugin.getRDatabase().deleteHome(player, homeName);
-                    plugin.getRDatabase().deleteAllInviteColumns(player, homeName);
+                    plugin.getDatabase().deleteHome(player, homeName);
+                    plugin.getDatabase().deleteAllInviteColumns(player, homeName);
                 });
 
                 player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_DELETED);
@@ -116,7 +114,7 @@ public class DeleteHomeCommand implements CommandExecutor, TabCompleter {
 
         Player player = (Player) sender;
 
-        List<String> homeList = plugin.getRDatabase().getHomeList(player).join();
+        List<String> homeList = plugin.getDatabase().getHomeList(player).join();
         List<String> tabCompletions = new ArrayList<>();
 
         if (!homeList.isEmpty() && args.length == 1) {

@@ -34,7 +34,7 @@ public class ListPlayerInvitesCommand implements CommandExecutor {
             return true;
         }
 
-        uuidFetcher.getOfflinePlayerUUIDFromMojang(args[0]).thenAccept(result_playerUUID -> plugin.getRDatabase().getHomeInviteList(result_playerUUID).thenAccept(result_homeInviteList -> {
+        uuidFetcher.getOfflinePlayerUUID(args[0]).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeInviteList(result_playerUUID).thenAccept(result_homeInviteList -> {
             String playerName = args[0];
             if (result_homeInviteList.isEmpty()) {
                 sender.sendMessage(Lang.PREFIX + Lang.PLAYER_NO_INVITES.toString().replace("%player%", playerName));
