@@ -32,7 +32,7 @@ public class ListPlayerHomesCommand implements CommandExecutor {
             return true;
         }
 
-        uuidFetcher.getOfflinePlayerUUID(args[0])
+        uuidFetcher.getPlayerUUID(args[0])
         .thenCompose(result_playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID))
         .thenAccept(result_homeList -> {
             String playerName = args[0];

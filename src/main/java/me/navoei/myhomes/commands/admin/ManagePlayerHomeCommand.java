@@ -5,7 +5,6 @@ import me.navoei.myhomes.language.Lang;
 import me.navoei.myhomes.uuid.Fetcher;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -74,7 +73,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
 
                 String invitedPlayerName = args[3];
 
-                uuidFetcher.getOfflinePlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeUsingHomeownerUUID(result_playerUUID, homeName).thenAccept(result_home -> {
+                uuidFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeUsingHomeownerUUID(result_playerUUID, homeName).thenAccept(result_home -> {
 
                     if (result_home.isEmpty()) {
                         sender.sendMessage(Lang.PREFIX + playerHasNoHome);
@@ -99,7 +98,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
                                     }
                                 } else {
                                     if (homeName.equalsIgnoreCase("Home")) {
-                                        uuidFetcher.getOfflinePlayerUUID(invitedPlayerName).thenAccept(result_invitedPlayerUUID -> plugin.getDatabase().setInviteColumnsUsingHomeownerUUID(result_playerUUID, "Home", result_invitedPlayerUUID));
+                                        uuidFetcher.getPlayerUUID(invitedPlayerName).thenAccept(result_invitedPlayerUUID -> plugin.getDatabase().setInviteColumnsUsingHomeownerUUID(result_playerUUID, "Home", result_invitedPlayerUUID));
                                         sender.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_INVITED_TO_DEFAULT_HOME.toString().replace("%invited_player%", invitedPlayerName).replace("%homeowner%", playerName));
 
                                         Player invitedPlayer = plugin.getServer().getPlayer(invitedPlayerName);
@@ -118,7 +117,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
                                             String homeNameLowerCase = homeName.toLowerCase();
                                             int homeNameWithCaseIndex = result_homeListLowerCase.indexOf(homeNameLowerCase);
                                             String homeNameWithCase = result_homeList.get(homeNameWithCaseIndex);
-                                            uuidFetcher.getOfflinePlayerUUID(invitedPlayerName).thenAccept(result_invitedPlayerUUID -> plugin.getDatabase().setInviteColumnsUsingHomeownerUUID(result_playerUUID, homeNameWithCase, result_invitedPlayerUUID));
+                                            uuidFetcher.getPlayerUUID(invitedPlayerName).thenAccept(result_invitedPlayerUUID -> plugin.getDatabase().setInviteColumnsUsingHomeownerUUID(result_playerUUID, homeNameWithCase, result_invitedPlayerUUID));
                                             sender.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_INVITED_TO_SPECIFIED_HOME.toString().replace("%invited_player%", invitedPlayerName).replace("%home%", homeNameWithCase).replace("%homeowner%", playerName));
 
                                             Player invitedPlayer = plugin.getServer().getPlayer(invitedPlayerName);
@@ -147,7 +146,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
 
                 String uninvitedPlayerName = args[3];
 
-                uuidFetcher.getOfflinePlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeUsingHomeownerUUID(result_playerUUID, homeName).thenAccept(result_home -> {
+                uuidFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeUsingHomeownerUUID(result_playerUUID, homeName).thenAccept(result_home -> {
 
                     if (result_home.isEmpty()) {
                         sender.sendMessage(Lang.PREFIX + playerHasNoHome);
@@ -167,7 +166,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
                                sender.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_HAS_NOT_BEEN_INVITED_TO_SPECIFIED_HOME.toString().replace("%uninvited_player%", uninvitedPlayerName).replace("%home%", homeName).replace("%homeowner%", playerName));
                            }
                        } else {
-                           uuidFetcher.getOfflinePlayerUUID(uninvitedPlayerName).thenAccept(result_uninvitedPlayerUUID -> plugin.getDatabase().deleteInviteColumnsUsingHomeownerUUID(result_playerUUID, homeName, result_uninvitedPlayerUUID));
+                           uuidFetcher.getPlayerUUID(uninvitedPlayerName).thenAccept(result_uninvitedPlayerUUID -> plugin.getDatabase().deleteInviteColumnsUsingHomeownerUUID(result_playerUUID, homeName, result_uninvitedPlayerUUID));
                            if (homeName.equalsIgnoreCase("Home")) {
                                sender.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_UNINVITED_FROM_DEFAULT_HOME.toString().replace("%uninvited_player%", uninvitedPlayerName).replace("%homeowner%", playerName));
                            } else {
@@ -181,7 +180,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
 
             } else if (args[2].equalsIgnoreCase("privacy")) {
 
-                uuidFetcher.getOfflinePlayerUUID(playerName).thenAccept(result_playerUUID -> {
+                uuidFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> {
                     plugin.getDatabase().getHomeUsingHomeownerUUID(result_playerUUID, homeName).thenAccept(result_home -> {
                        if (result_home.isEmpty()) {
                            sender.sendMessage(Lang.PREFIX + playerHasNoHome);
@@ -212,7 +211,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
                 });
                 return true;
             } else if (args[2].equalsIgnoreCase("rename")) {
-                uuidFetcher.getOfflinePlayerUUID(playerName).thenAccept(result_playerUUID -> {
+                uuidFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> {
                    plugin.getDatabase().getHomeUsingHomeownerUUID(result_playerUUID, homeName).thenAccept(result_home -> {
                        if (result_home.isEmpty()) {
                            sender.sendMessage(Lang.PREFIX + playerHasNoHome);
@@ -257,7 +256,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
                         return;
                     }
 
-                    uuidFetcher.getOfflinePlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
+                    uuidFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
 
                         int maxHomes = plugin.getConfig().getInt("maximumhomes");
 
@@ -292,7 +291,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
                 return true;
             } else if (args[2].equalsIgnoreCase("delete")) {
 
-                uuidFetcher.getOfflinePlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
+                uuidFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
 
                     if (result_homeList.stream().noneMatch(homeName::equalsIgnoreCase)) {
                         sender.sendMessage(Lang.PREFIX + playerHasNoHome);
@@ -312,7 +311,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
 
             } else if (args[2].equalsIgnoreCase("listinvites")) {
 
-                uuidFetcher.getOfflinePlayerUUID(playerName).thenAccept(result_playerUUID -> {
+                uuidFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> {
                    plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
 
                        if (result_homeList.stream().noneMatch(homeName::equalsIgnoreCase)) {
@@ -341,7 +340,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
                 return true;
             } else if (args[2].equalsIgnoreCase("info")) {
 
-                uuidFetcher.getOfflinePlayerUUID(playerName).thenAccept(result_playerUUID -> {
+                uuidFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> {
                    plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
                       if (result_homeList.stream().noneMatch(homeName::equalsIgnoreCase)) {
                           sender.sendMessage(Lang.PREFIX + playerHasNoHome);
@@ -382,7 +381,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
 
             Player player = (Player) sender;
 
-            uuidFetcher.getOfflinePlayerUUID(playerName).thenAccept(result_playerUUID -> {
+            uuidFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> {
                 plugin.getDatabase().getHomeUsingHomeownerUUID(result_playerUUID, homeName).thenAccept(result_home -> {
 
                     if (result_home.isEmpty()) {
@@ -443,7 +442,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
         //Involves typing the player's home.
         if (args.length == 2) {
             String playerName = args[0];
-            List<String> homeList = plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(uuidFetcher.getOfflinePlayerUUID(playerName).join()).join();
+            List<String> homeList = plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(uuidFetcher.getPlayerUUID(playerName).join()).join();
             if (!homeList.isEmpty()) {
                 StringUtil.copyPartialMatches(args[1], homeList, tabCompletions);
                 Collections.sort(tabCompletions);
@@ -487,7 +486,7 @@ public class ManagePlayerHomeCommand implements CommandExecutor, Listener, TabCo
                 String playerName = args[0];
                 String homeName = args[1];
 
-                List<String> invitedPlayersList = plugin.getDatabase().getHomeInvitedPlayers(uuidFetcher.getOfflinePlayerUUID(playerName).join(), homeName).join();
+                List<String> invitedPlayersList = plugin.getDatabase().getHomeInvitedPlayers(uuidFetcher.getPlayerUUID(playerName).join(), homeName).join();
                 if (!invitedPlayersList.isEmpty()) {
                     StringUtil.copyPartialMatches(args[3], invitedPlayersList, tabCompletions);
                     Collections.sort(tabCompletions);

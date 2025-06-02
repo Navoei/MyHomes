@@ -67,7 +67,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
 
             if (args.length>0 && result_homeList.stream().noneMatch(args[0]::equalsIgnoreCase)) {
 
-                uuidFetcher.getOfflinePlayerUUID(args[0]).thenAccept(result_homeownerUUID -> {
+                uuidFetcher.getPlayerUUID(args[0]).thenAccept(result_homeownerUUID -> {
 
                     if (args.length == 1) {
 

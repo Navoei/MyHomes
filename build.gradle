@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
-    //id "com.gradleup.shadow" version "8.3.5"
+    id "com.gradleup.shadow" version "8.3.5"
 }
 
 group = maven_group
@@ -31,7 +31,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    //shadow "dev.jorel:commandapi-bukkit-shade:${command_api_version}"
+    shadow "dev.jorel:commandapi-bukkit-shade:${command_api_version}"
 }
 
 tasks {
@@ -61,13 +61,13 @@ tasks.withType(JavaCompile).configureEach {
     }
 }
 
-//shadowJar {
-//    configurations = [project.configurations.shadow]
-//    archiveClassifier.set("dev")
-//
-//    //relocate 'javazoom', "me.navoei.${mod_id}.javazoom"
-//    //relocate 'org.tritonus', "me.navoei.${mod_id}.tritonus"
-//
-//    // By documentation, it was recommented to relocate to not cause issues with other plugins that shade CommandAPI
-//    relocate("dev.jorel.commandapi", "me.navoei.${mod_id}.commandapi")
-//}
+shadowJar {
+    configurations = [project.configurations.shadow]
+    archiveClassifier.set("dev")
+
+    //relocate 'javazoom', "me.navoei.${mod_id}.javazoom"
+    //relocate 'org.tritonus', "me.navoei.${mod_id}.tritonus"
+
+    // By documentation, it was recommented to relocate to not cause issues with other plugins that shade CommandAPI
+    relocate("dev.jorel.commandapi", "me.navoei.${mod_id}.commandapi")
+}

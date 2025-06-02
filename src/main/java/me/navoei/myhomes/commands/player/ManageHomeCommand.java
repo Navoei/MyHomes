@@ -83,7 +83,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                 if (result_playedBefore) {
 
                     plugin.getDatabase().getHomeInvitedPlayers(playerUUID, homeName)
-                    .thenAcceptBoth(uuidFetcher.getOfflinePlayerUUID(playerName),(result_homeInvitedPlayers, offlinePlayerUUID) -> {
+                    .thenAcceptBoth(uuidFetcher.getPlayerUUID(playerName),(result_homeInvitedPlayers, offlinePlayerUUID) -> {
 
                         if (result_homeInvitedPlayers.stream().anyMatch(playerName::equalsIgnoreCase)) {
                             if (homeName.equalsIgnoreCase("Home")) {
@@ -159,7 +159,7 @@ public class ManageHomeCommand implements CommandExecutor, TabCompleter {
                         player.sendMessage(Lang.PREFIX + Lang.NOT_INVITED_TO_SPECIFIED_HOME.toString().replace("%player%", playerName).replace("%home%", homeName));
                     }
                 } else {
-                    uuidFetcher.getOfflinePlayerUUID(playerName).thenAccept(result_offlinePlayerUUID -> plugin.getDatabase().deleteInviteColumns(player, homeName, result_offlinePlayerUUID));
+                    uuidFetcher.getPlayerUUID(playerName).thenAccept(result_offlinePlayerUUID -> plugin.getDatabase().deleteInviteColumns(player, homeName, result_offlinePlayerUUID));
                     if (homeName.equalsIgnoreCase("Home")) {
                         player.sendMessage(Lang.PREFIX + Lang.UNINVITED_FROM_DEFAULT_HOME.toString().replace("%player%", playerName));
                     } else {

@@ -1,5 +1,7 @@
 package me.navoei.myhomes.language;
 
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -110,6 +112,12 @@ public enum Lang {
         if (this == PREFIX)
             return ChatColor.translateAlternateColorCodes('&', LANG.getString(this.path, def)) + " ";
         return ChatColor.translateAlternateColorCodes('&', LANG.getString(this.path, def));
+    }
+
+    public TextComponent toTextComponent() {
+        if (this == PREFIX)
+            return LegacyComponentSerializer.legacyAmpersand().deserialize(LANG.getString(this.path, def) + " ");
+        return LegacyComponentSerializer.legacyAmpersand().deserialize(LANG.getString(this.path, def));
     }
 
     /**

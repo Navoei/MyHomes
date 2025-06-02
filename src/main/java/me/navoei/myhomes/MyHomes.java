@@ -1,11 +1,14 @@
 package me.navoei.myhomes;
 
+import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import me.navoei.myhomes.commands.admin.*;
 import me.navoei.myhomes.commands.player.*;
 import me.navoei.myhomes.events.RespawnEvent;
 import me.navoei.myhomes.language.Lang;
 import me.navoei.myhomes.storage.Database;
 import me.navoei.myhomes.storage.SQLite;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,42 +20,55 @@ public final class MyHomes extends JavaPlugin {
 
     private Database database;
     static MyHomes instance;
-    private Logger log;
+    private static Logger log;
     public static YamlConfiguration LANG;
     public static File LANG_FILE;
 
+    public void onLoad() {
+        MyHomes.instance = this;
+        log = getLogger();
+        CommandAPI.onLoad(new CommandAPIBukkitConfig(this).verboseOutput(true));
+        new ListPlayerHomes(this).register("myhomes");
+        new ListPlayerInvites(this).register("myhomes");
+        new ManagePlayerHome(this).register("myhomes");
+        new DeleteHome(this).register("myhomes");
+        new Home(this).register("myhomes");
+        new ListHomes(this).register("myhomes");
+        new ListInvites(this).register("myhomes");
+        new ManageHome(this).register("myhomes");
+        new SetHome(this).register("myhomes");
+    }
+
     @Override
     public void onEnable() {
-            // Plugin startup logic
+        // Plugin startup logic
+        saveDefaultConfig();
+        loadLang();
+        this.database = new SQLite(this);
+        this.database.load();
 
-            MyHomes.instance = this;
-            saveDefaultConfig();
+        CommandAPI.onEnable();
 
-            log = getLogger();
-            loadLang();
+        //getCommand("sethome").setExecutor(new SetHomeCommand());
+        //getCommand("listhomes").setExecutor(new ListHomesCommand());
+        //getCommand("managehome").setExecutor(new ManageHomeCommand());
+        //getCommand("deletehome").setExecutor(new DeleteHomeCommand());
+        //getCommand("home").setExecutor(new HomeCommand());
+        //getCommand("listinvites").setExecutor(new ListInvitesCommand());
+        //getCommand("listplayerhomes").setExecutor(new ListPlayerHomesCommand());
+        //getCommand("listplayerinvites").setExecutor(new ListPlayerInvitesCommand());
+        //getCommand("manageplayerhome").setExecutor(new ManagePlayerHomeCommand());
+        //getServer().getPluginManager().registerEvents(new ManagePlayerHomeCommand(), this);
+        getServer().getPluginManager().registerEvents(new RespawnEvent(), this);
 
-            this.database = new SQLite(this);
-            this.database.load();
-
-            getCommand("sethome").setExecutor(new SetHomeCommand());
-            getCommand("listhomes").setExecutor(new ListHomesCommand());
-            getCommand("managehome").setExecutor(new ManageHomeCommand());
-            getCommand("deletehome").setExecutor(new DeleteHomeCommand());
-            getCommand("home").setExecutor(new HomeCommand());
-            getCommand("listinvites").setExecutor(new ListInvitesCommand());
-            getCommand("listplayerhomes").setExecutor(new ListPlayerHomesCommand());
-            getCommand("listplayerinvites").setExecutor(new ListPlayerInvitesCommand());
-            getCommand("manageplayerhome").setExecutor(new ManagePlayerHomeCommand());
-            getServer().getPluginManager().registerEvents(new ManagePlayerHomeCommand(), this);
-            getServer().getPluginManager().registerEvents(new RespawnEvent(), this);
-
-            log.info("Plugin enabled!");
+        log.info("Plugin enabled!");
 
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        CommandAPI.onDisable();
         log.info("Plugin disabled!");
     }
 
@@ -66,7 +82,6 @@ public final class MyHomes extends JavaPlugin {
 
     /**
      * Load the lang.yml file.
-     * @return The lang.yml config.
      */
     public void loadLang() {
         File lang = new File(getDataFolder(), "lang.yml");
@@ -82,9 +97,9 @@ public final class MyHomes extends JavaPlugin {
                     Lang.setFile(defConfig);
                 }
             } catch(IOException e) {
-                e.printStackTrace(); // So they notice
                 log.severe("Failed to create lang.yml for MyHomes.");
                 log.severe("Now disabling...");
+                log.severe(e.toString()); // So they notice
                 this.setEnabled(false); // Without it loaded, we can't send them messages
             }
         }
@@ -102,7 +117,7 @@ public final class MyHomes extends JavaPlugin {
         } catch(IOException e) {
             log.log(Level.WARNING, "Failed to save lang.yml for MyHomes");
             log.log(Level.WARNING, "Now disabling...");
-            e.printStackTrace();
+            log.severe(e.toString());
         }
     }
 
@@ -127,7 +142,7 @@ public final class MyHomes extends JavaPlugin {
         try (OutputStream output = new FileOutputStream(file)) {
             input.transferTo(output);
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            log.severe(ioException.toString());
         }
 
     }
