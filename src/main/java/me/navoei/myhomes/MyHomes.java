@@ -26,7 +26,7 @@ public final class MyHomes extends JavaPlugin {
     public void onLoad() {
         MyHomes.instance = this;
         log = getLogger();
-        CommandAPI.onLoad(new CommandAPIBukkitConfig(this).verboseOutput(true));
+        CommandAPI.onLoad(new CommandAPIBukkitConfig(this).verboseOutput(false));
         new ListPlayerHomesCommand(this).register("myhomes");
         new ListPlayerInvitesCommand(this).register("myhomes");
         new ManagePlayerHomeCommand(this).register("myhomes");
