@@ -1,123 +1,118 @@
 package me.navoei.myhomes.commands.player;
 
+import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
+import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import me.navoei.myhomes.MyHomes;
 import me.navoei.myhomes.language.Lang;
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CompletableFuture;
 
-public class SetHomeCommand implements CommandExecutor {
+public class SetHomeCommand extends CommandAPICommand {
 
-    MyHomes plugin = MyHomes.getInstance();
-    BukkitScheduler scheduler = plugin.getServer().getScheduler();
+    MyHomes plugin;
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public SetHomeCommand(MyHomes plugin) {
+        super("sethome");
+        this.plugin = plugin;
+        this.withFullDescription("Sets a player's home.");
+        this.withPermission("myhomes.sethome");
+        this.withAliases("homeset");
 
-        if (!sender.hasPermission("myhomes.sethome")) {
-            sender.sendMessage(Lang.PREFIX.toString() + Lang.NO_PERMISSION);
-            return true;
-        }
+        this.executesPlayer(this::onCommandPlayer);
+        this.executesConsole(this::onCommandConsole);
 
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command!");
-            return true;
-        }
+        this.withOptionalArguments(new StringArgument("home_name").replaceSuggestions(ArgumentSuggestions.stringCollectionAsync((sender) -> CompletableFuture.supplyAsync(() -> {
+            if (sender.sender() instanceof Player player) {
+                return plugin.getDatabase().getHomeList(player).join();
+            } else {
+                return null;
+            }
+        }))));
+    }
 
-        Player player = (Player) sender;
-
-        if (args.length > 1) {
-            player.sendMessage(ChatColor.RED + "Too many arguments!");
-            return true;
-        }
-
-        plugin.getDatabase().getHomeList(player).thenAccept(result_homeList -> {
-
-            AtomicInteger maxHomes = new AtomicInteger(plugin.getConfig().getInt("maximumhomes"));
-            List<PermissionAttachmentInfo> effectivePermissions = player.getEffectivePermissions().stream().toList();
-            effectivePermissions.forEach(permissionAttachmentInfo -> {
-               String permission = permissionAttachmentInfo.getPermission().toLowerCase();
-               if (permission.startsWith("myhomes.maximumhomes.")) {
-                   int maxHomesPermission = Integer.parseInt(permission.substring(21));
-                   if (maxHomesPermission > maxHomes.get()) {
-                       maxHomes.set(maxHomesPermission);
-                   }
-               }
-            });
-
-            int characterLimit = plugin.getConfig().getInt("characterlimit");
-
-            String exceededHomes = Lang.PREFIX + Lang.TOO_MANY_HOMES.toString().replace("%maximum_number_of_homes%", Integer.toString(maxHomes.get()));
-
-            if (args.length == 1) {
-
-                if (args[0].length() > characterLimit) {
-                    player.sendMessage(Lang.PREFIX + Lang.TOO_MANY_CHARACTERS.toString().replace("%character_limit%", Integer.toString(characterLimit)));
-                    return;
-                }
-
-                if (!args[0].matches("[a-zA-Z0-9]*")) {
-                    player.sendMessage(Lang.PREFIX.toString() + Lang.INVALID_CHARACTERS);
-                    return;
-                }
-
-                if (result_homeList.size() >= maxHomes.get() && result_homeList.stream().noneMatch(args[0]::equalsIgnoreCase) && !sender.hasPermission("myhomes.maxhomebypass")) {
-                    player.sendMessage(exceededHomes);
-                    return;
-                }
-
-                plugin.getDatabase().getHomeInfo(player, args[0]).thenAccept(result_homeInfo -> {
-
-                    if (!result_homeInfo.isEmpty()) {
-                        String homeName = result_homeInfo.get(0);
-                        plugin.getDatabase().updateHomeLocation(player, homeName);
-
-                        if (homeName.equalsIgnoreCase("Home")) {
-                            player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_UPDATED);
-                        } else {
-                            player.sendMessage(Lang.PREFIX + Lang.HOME_SPECIFIED_UPDATED.toString().replace("%home%", homeName));
+    private int onCommandPlayer(Player player, CommandArguments arguments) {
+        String homeName = arguments.getByClass("home_name", String.class);
+        plugin.getDatabase().getHomeList(player)
+                .thenAccept(result_homeList -> {
+                    int maxHomes = plugin.getConfig().getInt("maximumhomes");
+                    List<PermissionAttachmentInfo> effectivePermissions = player.getEffectivePermissions().stream().toList();
+                    for (PermissionAttachmentInfo permissionAttachmentInfo : effectivePermissions) {
+                        String permission = permissionAttachmentInfo.getPermission().toLowerCase();
+                        if (permission.startsWith("myhomes.maximumhomes.")) {
+                            int maxHomesPermission = Integer.parseInt(permission.substring(21));
+                            if (maxHomesPermission > maxHomes) {
+                                maxHomes = maxHomesPermission;
+                            }
+                        }
+                    }
+                    String exceededHomes = Lang.PREFIX + Lang.TOO_MANY_HOMES.toString().replace("%maximum_number_of_homes%", Integer.toString(maxHomes));
+                    if (homeName!=null) {
+                        if (!homeName.matches("[a-zA-Z0-9]*")) {
+                            player.sendMessage(Lang.PREFIX.toString() + Lang.INVALID_CHARACTERS);
+                            return;
+                        }
+                        int characterLimit = plugin.getConfig().getInt("characterlimit");
+                        if (homeName.length() > characterLimit) {
+                            player.sendMessage(Lang.PREFIX + Lang.TOO_MANY_CHARACTERS.toString().replace("%character_limit%", Integer.toString(characterLimit)));
+                            return;
+                        }
+                        if (result_homeList.size() >= maxHomes && result_homeList.stream().noneMatch(homeName::equalsIgnoreCase) && !player.hasPermission("myhomes.maxhomebypass")) {
+                            player.sendMessage(exceededHomes);
+                            return;
                         }
 
-                        return;
-                    }
+                        plugin.getDatabase().getHomeInfo(player, homeName).thenAccept(result_homeInfo -> {
+                            if (!result_homeInfo.isEmpty()) {
+                                String result_homeName = result_homeInfo.getFirst();
+                                plugin.getDatabase().updateHomeLocation(player, result_homeName);
 
-                    if (args[0].equalsIgnoreCase("Home")) {
-                        plugin.getDatabase().setHomeColumns(player, "Home", false);
-                        player.sendMessage(Lang.PREFIX.toString() + Lang.SET_HOME);
+                                if (result_homeName.equalsIgnoreCase("Home")) {
+                                    player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_UPDATED);
+                                } else {
+                                    player.sendMessage(Lang.PREFIX + Lang.HOME_SPECIFIED_UPDATED.toString().replace("%home%", result_homeName));
+                                }
+                                return;
+                            }
+
+                            if (homeName.equalsIgnoreCase("Home")) {
+                                plugin.getDatabase().setHomeColumns(player, "Home", false);
+                                player.sendMessage(Lang.PREFIX.toString() + Lang.SET_HOME);
+                            } else {
+                                plugin.getDatabase().setHomeColumns(player, homeName, false);
+                                player.sendMessage(Lang.PREFIX + Lang.SET_HOME_SPECIFIED.toString().replace("%home%", homeName));
+                            }
+                        });
                     } else {
-                        plugin.getDatabase().setHomeColumns(player, args[0], false);
-                        player.sendMessage(Lang.PREFIX + Lang.SET_HOME_SPECIFIED.toString().replace("%home%", args[0]));
+                        if (result_homeList.size() >= maxHomes && result_homeList.stream().noneMatch("Home"::equalsIgnoreCase) && !player.hasPermission("myhomes.maxhomebypass")) {
+                            player.sendMessage(exceededHomes);
+                            return;
+                        }
+
+                        plugin.getDatabase().getHomeInfo(player, "Home").thenAccept(result_homeInfo -> {
+                            if (!result_homeInfo.isEmpty()) {
+                                plugin.getDatabase().updateHomeLocation(player, "Home");
+                                player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_UPDATED);
+                                return;
+                            }
+
+                            plugin.getDatabase().setHomeColumns(player, "Home", false);
+                            player.sendMessage(Lang.PREFIX.toString() + Lang.SET_HOME);
+
+                        });
                     }
-
                 });
-                return;
-            }
-
-            if (result_homeList.size() >= maxHomes.get() && result_homeList.stream().noneMatch("home"::equalsIgnoreCase) && !player.hasPermission("myhomes.maxhomebypass")) {
-                player.sendMessage(exceededHomes);
-                return;
-            }
-
-            plugin.getDatabase().getHomeInfo(player, "Home").thenAccept(result_homeInfo -> {
-                if (!result_homeInfo.isEmpty()) {
-                    plugin.getDatabase().updateHomeLocation(player, "Home");
-                    player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_UPDATED);
-                    return;
-                }
-
-                plugin.getDatabase().setHomeColumns(player, "Home", false);
-                player.sendMessage(Lang.PREFIX.toString() + Lang.SET_HOME);
-
-            });
-
-        });
-        return false;
+        return 1;
     }
+
+    private int onCommandConsole(ConsoleCommandSender executor, CommandArguments arguments) {
+        executor.sendMessage(Lang.PREFIX + Lang.PLAYER_ONLY.toString());
+        return 1;
+    }
+
 }

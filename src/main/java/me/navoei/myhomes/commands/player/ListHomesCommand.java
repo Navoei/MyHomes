@@ -1,39 +1,30 @@
 package me.navoei.myhomes.commands.player;
 
+import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.executors.CommandArguments;
 import me.navoei.myhomes.MyHomes;
 import me.navoei.myhomes.language.Lang;
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class ListHomesCommand implements CommandExecutor {
+public class ListHomesCommand extends CommandAPICommand {
 
-    MyHomes plugin = MyHomes.getInstance();
+    MyHomes plugin;
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public ListHomesCommand(MyHomes plugin) {
+        super("listhomes");
+        this.plugin = plugin;
+        this.withFullDescription("Lists homes.");
+        this.withPermission("myhomes.listhomes");
+        this.withAliases("homelist");
+        this.executesPlayer(this::onCommandPlayer);
+        this.executesConsole(this::onCommandConsole);
+    }
 
-        if (!sender.hasPermission("myhomes.listhomes")) {
-            sender.sendMessage(Lang.PREFIX.toString() + Lang.NO_PERMISSION);
-            return true;
-        }
-
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("Only players can execute this command!");
-            return true;
-        }
-
-        if (args.length >= 1) {
-            sender.sendMessage(Lang.PREFIX.toString() + Lang.TOO_MANY_ARGUMENTS);
-            return true;
-        }
-
-        Player player = (Player) sender;
-
+    private int onCommandPlayer(Player player, CommandArguments arguments) {
         plugin.getDatabase().getHomeList(player).thenAccept(result_homeList -> {
             if (result_homeList.isEmpty()) {
                 player.sendMessage(Lang.PREFIX.toString() + Lang.NO_HOMES);
@@ -44,11 +35,16 @@ public class ListHomesCommand implements CommandExecutor {
             List<String> messageList = plugin.getLang().getStringList("listhomes");
 
             for (String message : messageList) {
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', message.replace("%homes_list%", homesList)));
+                player.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message.replace("%homes_list%", homesList)));
             }
 
         });
-
-        return false;
+        return 1;
     }
+
+    private int onCommandConsole(ConsoleCommandSender executor, CommandArguments arguments) {
+        executor.sendMessage(Lang.PREFIX + Lang.PLAYER_ONLY.toString());
+        return 1;
+    }
+
 }

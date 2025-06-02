@@ -8,7 +8,6 @@ import me.navoei.myhomes.events.RespawnEvent;
 import me.navoei.myhomes.language.Lang;
 import me.navoei.myhomes.storage.Database;
 import me.navoei.myhomes.storage.SQLite;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -28,15 +27,15 @@ public final class MyHomes extends JavaPlugin {
         MyHomes.instance = this;
         log = getLogger();
         CommandAPI.onLoad(new CommandAPIBukkitConfig(this).verboseOutput(true));
-        new ListPlayerHomes(this).register("myhomes");
-        new ListPlayerInvites(this).register("myhomes");
-        new ManagePlayerHome(this).register("myhomes");
-        new DeleteHome(this).register("myhomes");
-        new Home(this).register("myhomes");
-        new ListHomes(this).register("myhomes");
-        new ListInvites(this).register("myhomes");
-        new ManageHome(this).register("myhomes");
-        new SetHome(this).register("myhomes");
+        new ListPlayerHomesCommand(this).register("myhomes");
+        new ListPlayerInvitesCommand(this).register("myhomes");
+        new ManagePlayerHomeCommand(this).register("myhomes");
+        new DeleteHomeCommand(this).register("myhomes");
+        new HomeCommand(this).register("myhomes");
+        new ListHomesCommand(this).register("myhomes");
+        new ListInvitesCommand(this).register("myhomes");
+        new ManageHomeCommand(this).register("myhomes");
+        new SetHomeCommand(this).register("myhomes");
     }
 
     @Override
@@ -49,16 +48,6 @@ public final class MyHomes extends JavaPlugin {
 
         CommandAPI.onEnable();
 
-        //getCommand("sethome").setExecutor(new SetHomeCommand());
-        //getCommand("listhomes").setExecutor(new ListHomesCommand());
-        //getCommand("managehome").setExecutor(new ManageHomeCommand());
-        //getCommand("deletehome").setExecutor(new DeleteHomeCommand());
-        //getCommand("home").setExecutor(new HomeCommand());
-        //getCommand("listinvites").setExecutor(new ListInvitesCommand());
-        //getCommand("listplayerhomes").setExecutor(new ListPlayerHomesCommand());
-        //getCommand("listplayerinvites").setExecutor(new ListPlayerInvitesCommand());
-        //getCommand("manageplayerhome").setExecutor(new ManagePlayerHomeCommand());
-        //getServer().getPluginManager().registerEvents(new ManagePlayerHomeCommand(), this);
         getServer().getPluginManager().registerEvents(new RespawnEvent(), this);
 
         log.info("Plugin enabled!");

@@ -1,130 +1,100 @@
 package me.navoei.myhomes.commands.player;
 
+import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
+import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import me.navoei.myhomes.MyHomes;
 import me.navoei.myhomes.language.Lang;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitScheduler;
-import org.bukkit.util.StringUtil;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public class DeleteHomeCommand implements CommandExecutor, TabCompleter {
+public class DeleteHomeCommand extends CommandAPICommand {
 
-    MyHomes plugin = MyHomes.getInstance();
-    BukkitScheduler scheduler = plugin.getServer().getScheduler();
+    private final MyHomes plugin;
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public DeleteHomeCommand(MyHomes plugin) {
+        super("deletehome");
+        this.plugin = plugin;
+        this.withFullDescription("Deletes the specified home.");
+        this.withPermission("myhomes.deletehome");
+        this.withAliases("delhome");
 
-        if (!sender.hasPermission("myhomes.deletehome")) {
-            sender.sendMessage(Lang.PREFIX.toString() + Lang.NO_PERMISSION);
-            return true;
-        }
+        this.executesPlayer(this::onCommandPlayer);
+        this.executesConsole(this::onCommandConsole);
 
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(Lang.PREFIX.toString() + Lang.PLAYER_ONLY);
-            return true;
-        }
+        this.withOptionalArguments(new StringArgument("home_name").replaceSuggestions(ArgumentSuggestions.stringCollectionAsync((sender) -> CompletableFuture.supplyAsync(() -> {
+            if (sender.sender() instanceof Player player) {
+                return plugin.getDatabase().getHomeList(player).join();
+            } else {
+                return null;
+            }
+        }))));
+    }
 
-        Player player = (Player) sender;
+    private int onCommandPlayer(Player player, CommandArguments arguments) {
+        String homeName = arguments.getByClass("home_name", String.class);
 
-        if (args.length > 1) {
-            player.sendMessage(Lang.PREFIX.toString() + Lang.TOO_MANY_ARGUMENTS);
-            return true;
-        }
-
-        if (args.length == 1) {
-
+        if (homeName!=null) {
             plugin.getDatabase().getHomeList(player).thenAccept(result_homeList -> {
 
-                if (result_homeList.stream().noneMatch(args[0]::equalsIgnoreCase) || !args[0].matches("[a-zA-Z0-9]*")) {
+                if (result_homeList.stream().noneMatch(homeName::equalsIgnoreCase) || !homeName.matches("[a-zA-Z0-9]*")) {
                     player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
                     return;
                 }
 
-                plugin.getDatabase().getHomeInfo(player, args[0]).thenAccept(result_homeInfo -> {
-                    String homeName = result_homeInfo.get(0);
+                plugin.getDatabase().getHomeInfo(player, homeName).thenAccept(result_homeInfo -> {
+                    String result_homeName = result_homeInfo.getFirst();
 
-                    if (homeName.isEmpty()) {
+                    if (result_homeName.isEmpty()) {
                         player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
                         return;
                     }
 
-                    plugin.getDatabase().deleteHome(player, homeName);
-                    plugin.getDatabase().deleteAllInviteColumns(player, homeName);
+                    plugin.getDatabase().deleteHome(player, result_homeName);
+                    plugin.getDatabase().deleteAllInviteColumns(player, result_homeName);
 
-                    if (homeName.equalsIgnoreCase("home")) {
+                    if (result_homeName.equalsIgnoreCase("home")) {
                         player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_DELETED);
                     } else {
-                        player.sendMessage(Lang.PREFIX + Lang.HOME_DELETED_SPECIFIED.toString().replace("%home%", homeName));
+                        player.sendMessage(Lang.PREFIX + Lang.HOME_DELETED_SPECIFIED.toString().replace("%home%", result_homeName));
                     }
 
                 });
 
             });
-
-            return true;
-        }
-
-        plugin.getDatabase().getHomeList(player).thenAccept(result_homeList -> {
-            if (result_homeList.stream().noneMatch("home"::equalsIgnoreCase)) {
-                player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
-                return;
-            }
-
-            plugin.getDatabase().getHomeInfo(player, "Home").thenAccept(result_homeInfo -> {
-                String homeName = result_homeInfo.get(0);
-
-                if (homeName.isEmpty()) {
+        } else {
+            plugin.getDatabase().getHomeList(player).thenAccept(result_homeList -> {
+                if (result_homeList.stream().noneMatch("Home"::equalsIgnoreCase)) {
                     player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
                     return;
                 }
 
-                scheduler.runTaskAsynchronously(plugin, () -> {
-                    plugin.getDatabase().deleteHome(player, homeName);
-                    plugin.getDatabase().deleteAllInviteColumns(player, homeName);
+                plugin.getDatabase().getHomeInfo(player, "Home").thenAccept(result_homeInfo -> {
+                    String result_homeName = result_homeInfo.getFirst();
+
+                    if (result_homeName.isEmpty()) {
+                        player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_NOT_EXISTS);
+                        return;
+                    }
+
+                    plugin.getDatabase().deleteHome(player, result_homeName);
+                    plugin.getDatabase().deleteAllInviteColumns(player, result_homeName);
+
+                    player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_DELETED);
+
                 });
 
-                player.sendMessage(Lang.PREFIX.toString() + Lang.HOME_DELETED);
-
             });
-
-        });
-
-        return true;
-
+        }
+        return 1;
     }
 
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-
-        if (!sender.hasPermission("myhomes.deletehome")) {
-            return null;
-        }
-
-        if (!(sender instanceof Player)) {
-            return null;
-        }
-
-        Player player = (Player) sender;
-
-        List<String> homeList = plugin.getDatabase().getHomeList(player).join();
-        List<String> tabCompletions = new ArrayList<>();
-
-        if (!homeList.isEmpty() && args.length == 1) {
-            StringUtil.copyPartialMatches(args[0], homeList, tabCompletions);
-            Collections.sort(tabCompletions);
-            return tabCompletions;
-        }
-
-        return null;
-
+    private int onCommandConsole(ConsoleCommandSender executor, CommandArguments arguments) {
+        executor.sendMessage(Lang.PREFIX + Lang.PLAYER_ONLY.toString());
+        return 1;
     }
 
 }
