@@ -31,23 +31,26 @@ public class ManageHome extends CommandAPICommand {
         this.executesConsole(this::onCommandConsole);
 
         this.withArguments(new StringArgument("home_name").replaceSuggestions(ArgumentSuggestions.stringCollectionAsync((sender) -> CompletableFuture.supplyAsync(() -> {
-            String playerName = sender.previousArgs().getByClass("player", String.class);
-            return Fetcher.getPlayerUUID(playerName).thenComposeAsync(playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(playerUUID)).join();
+            if (sender.sender() instanceof Player player) {
+                return plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(player.getUniqueId().toString()).join();
+            } else {
+                return null;
+            }
         }))));
         this.withArguments(new StringArgument("argument").replaceSuggestions(ArgumentSuggestions.stringCollection((sender) -> List.of("invite", "uninvite", "privacy", "listinvites", "info", "rename"))));
         this.withOptionalArguments(new StringArgument("sub_argument").replaceSuggestions(ArgumentSuggestions.stringCollectionAsync((sender) -> CompletableFuture.supplyAsync(() -> {
+            if (!(sender.sender() instanceof Player player)) return null;
             String argument = sender.previousArgs().getByClass("argument", String.class);
             if (argument==null || argument.isEmpty()) return null;
-            String playerName = sender.previousArgs().getByClass("player", String.class);
             String homeName = sender.previousArgs().getByClass("home_name", String.class);
 
             if (argument.equalsIgnoreCase("invite")) {
                 List<String> playerNames = new ArrayList<>();
-                Bukkit.getOnlinePlayers().forEach(player -> playerNames.add(player.getName()));
+                Bukkit.getOnlinePlayers().forEach(bukkitPlayer -> playerNames.add(bukkitPlayer.getName()));
                 return playerNames;
             }
             if (argument.equalsIgnoreCase("uninvite")) {
-                return Fetcher.getPlayerUUID(playerName).thenComposeAsync(playerUUID -> plugin.getDatabase().getHomeInvitedPlayers(playerUUID, homeName)).join();
+                return plugin.getDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName).join();
             }
             if (argument.equalsIgnoreCase("privacy")) {
                 return List.of("private", "public");

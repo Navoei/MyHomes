@@ -6,26 +6,6 @@ prefix: MyHomes
 authors: [ Navoei ]
 description: A home plugin with UUID support. Allows players to invite others to their homes, as well as setting it to be public or private.
 commands:
-  sethome:
-    description: Sets a player's home.
-    aliases: homeset
-  listhomes:
-    description: Lists homes.
-    aliases: homelist
-  managehome:
-    description: Manages the specified home.
-    aliases: mhome
-  listinvites:
-    description: Shows homes the player is invited to.
-    aliases: [invitelist, ilist]
 permissions:
-  myhomes.sethome:
-    description: Allows players to set a home.
-  myhomes.listhomes:
-    description: Allows players to list their homes.
-  myhomes.managehome:
-    description: Allows players to manage their homes.
-  myhomes.listinvites:
-    description: Allows players to show homes they are invited to.
   myhomes.maxhomebyass:
     description: Allows players to bypass the maximum home limit.

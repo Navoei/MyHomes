@@ -1,6 +1,7 @@
 package me.navoei.myhomes.uuid;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -21,7 +22,14 @@ public class Fetcher {
     }
 
     public static CompletableFuture<Boolean> checkPlayedBefore(String playerName) {
-        return CompletableFuture.supplyAsync(() -> Bukkit.getOfflinePlayer(playerName).hasPlayedBefore());
+        return CompletableFuture.supplyAsync(() -> {
+            String offlinePlayerUUID = UUIDFetcher.getUUIDString(playerName);
+            if (offlinePlayerUUID!=null && !offlinePlayerUUID.isEmpty()) {
+                return Bukkit.getOfflinePlayer(playerName).hasPlayedBefore();
+            } else {
+                return false;
+            }
+        });
     }
 
     public static String getPlayerNameFromUUID(String playerUUID) {

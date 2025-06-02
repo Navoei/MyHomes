@@ -281,7 +281,15 @@ public class ManagePlayerHome extends CommandAPICommand {
                         int maxHomes = plugin.getConfig().getInt("maximumhomes");
 
                         if (result_homeList.stream().noneMatch(homeName::equalsIgnoreCase)) {
-
+                            int characterLimit = plugin.getConfig().getInt("characterlimit");
+                            if (homeName.length() > characterLimit) {
+                                player.sendMessage(Lang.PREFIX + Lang.TOO_MANY_CHARACTERS.toString().replace("%character_limit%", Integer.toString(characterLimit)));
+                                return;
+                            }
+                            if (!homeName.matches("[a-zA-Z0-9]*")) {
+                                player.sendMessage(Lang.PREFIX.toString() + Lang.INVALID_CHARACTERS);
+                                return;
+                            }
                             if (!player.hasPermission("myhomes.maxhomebypass") && result_homeList.size() >= maxHomes) {
                                 String exceededHomes = Lang.PREFIX + Lang.TOO_MANY_HOMES.toString().replace("%maximum_number_of_homes%", Integer.toString(maxHomes));
                                 player.sendMessage(exceededHomes);
