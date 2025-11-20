@@ -2,6 +2,7 @@ package me.navoei.myhomes;
 
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
+import dev.jorel.commandapi.CommandAPIPaperConfig;
 import me.navoei.myhomes.commands.admin.*;
 import me.navoei.myhomes.commands.player.*;
 import me.navoei.myhomes.events.RespawnEvent;
@@ -26,7 +27,7 @@ public final class MyHomes extends JavaPlugin {
     public void onLoad() {
         MyHomes.instance = this;
         log = getLogger();
-        CommandAPI.onLoad(new CommandAPIBukkitConfig(this).verboseOutput(false));
+        CommandAPI.onLoad(new CommandAPIPaperConfig(this).verboseOutput(false));
         new ListPlayerHomesCommand(this).register("myhomes");
         new ListPlayerInvitesCommand(this).register("myhomes");
         new ManagePlayerHomeCommand(this).register("myhomes");

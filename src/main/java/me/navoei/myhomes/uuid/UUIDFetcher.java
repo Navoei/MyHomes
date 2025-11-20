@@ -25,8 +25,8 @@ import org.bukkit.entity.Player;
  */
 public final class UUIDFetcher {
 
-    private static final String UUID_URL = "https://api.mojang.com/users"
-            + "/profiles/minecraft/";
+    private static final String UUID_URL = "https://api.minecraftservices.com/minecraft"
+            + "/profile/lookup/name/";
 
     private static final Pattern UUID_PATTERN = Pattern.compile("\"id\"\\s*:\\s*\"(.*?)\"");
 

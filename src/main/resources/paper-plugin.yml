@@ -1,11 +1,7 @@
 name: MyHomes
+version: '${plugin_version}'
 main: me.navoei.myhomes.MyHomes
-api-version: '1.21'
-version: '2.1.3'
-prefix: MyHomes
-authors: [ Navoei ]
 description: A home plugin with UUID support. Allows players to invite others to their homes, as well as setting it to be public or private.
-commands:
-permissions:
-  myhomes.maxhomebyass:
-    description: Allows players to bypass the maximum home limit.
+authors: [ "Navoei" ]
+website: ""
+api-version: '${bukkit_api_version}'

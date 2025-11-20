@@ -11,7 +11,7 @@ processResources {
     def props = [version: version]
     inputs.properties props
     filteringCharset 'UTF-8'
-    filesMatching("plugin.yml") {
+    filesMatching(["plugin.yml", "paper-plugin.yml"]) {
         expand "plugin_version": plugin_version,
                 "bukkit_api_version": bukkit_api_version
     }
@@ -31,7 +31,10 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    shadow "dev.jorel:commandapi-bukkit-shade:${command_api_version}"
+
+    // If targeting a Minecraft version without native Adventure support, add it as well:
+    //implementation("net.kyori:adventure-platform-bukkit:4.0.1")
+    shadow "dev.jorel:commandapi-paper-shade:${command_api_version}"
 }
 
 tasks {
