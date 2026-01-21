@@ -29,6 +29,11 @@ public class ListPlayerHomesCommand extends CommandAPICommand {
         this.executesConsole(this::onCommandConsole);
 
         this.withArguments(new StringArgument("player").replaceSuggestions(ArgumentSuggestions.stringCollection((sender) -> {
+            if (sender.sender() instanceof Player p) {
+                if (!p.hasPermission("myhomes.manageplayerhome")) {
+                    return null;
+                }
+            }
             List<String> playerNames = new ArrayList<>();
             Bukkit.getOnlinePlayers().forEach(player -> playerNames.add(player.getName()));
             return playerNames;

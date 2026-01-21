@@ -1,7 +1,6 @@
 package me.navoei.myhomes;
 
 import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import dev.jorel.commandapi.CommandAPIPaperConfig;
 import me.navoei.myhomes.commands.admin.*;
 import me.navoei.myhomes.commands.player.*;
@@ -28,15 +27,15 @@ public final class MyHomes extends JavaPlugin {
         MyHomes.instance = this;
         log = getLogger();
         CommandAPI.onLoad(new CommandAPIPaperConfig(this).verboseOutput(false));
-        new ListPlayerHomesCommand(this).register("myhomes");
-        new ListPlayerInvitesCommand(this).register("myhomes");
-        new ManagePlayerHomeCommand(this).register("myhomes");
-        new DeleteHomeCommand(this).register("myhomes");
-        new HomeCommand(this).register("myhomes");
-        new ListHomesCommand(this).register("myhomes");
-        new ListInvitesCommand(this).register("myhomes");
-        new ManageHomeCommand(this).register("myhomes");
-        new SetHomeCommand(this).register("myhomes");
+        new ListPlayerHomesCommand(this).register(this);
+        new ListPlayerInvitesCommand(this).register(this);
+        new ManagePlayerHomeCommand(this).register(this);
+        new DeleteHomeCommand(this).register(this);
+        new HomeCommand(this).register(this);
+        new ListHomesCommand(this).register(this);
+        new ListInvitesCommand(this).register(this);
+        new ManageHomeCommand(this).register(this);
+        new SetHomeCommand(this).register(this);
     }
 
     @Override

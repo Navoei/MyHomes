@@ -46,7 +46,11 @@ public class ManageHomeCommand extends CommandAPICommand {
 
             if (argument.equalsIgnoreCase("invite")) {
                 List<String> playerNames = new ArrayList<>();
-                Bukkit.getOnlinePlayers().forEach(bukkitPlayer -> playerNames.add(bukkitPlayer.getName()));
+                Bukkit.getOnlinePlayers().forEach(bukkitPlayer -> {
+                    if (player.canSee(bukkitPlayer) && player.isListed(bukkitPlayer)) {
+                        playerNames.add(bukkitPlayer.getName());
+                    }
+                });
                 return playerNames;
             }
             if (argument.equalsIgnoreCase("uninvite")) {
