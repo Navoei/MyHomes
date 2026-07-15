@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
 
     // If targeting a Minecraft version without native Adventure support, add it as well:
     //implementation("net.kyori:adventure-platform-bukkit:4.0.1")

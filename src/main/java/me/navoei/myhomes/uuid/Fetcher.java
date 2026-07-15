@@ -25,7 +25,7 @@ public class Fetcher {
         return CompletableFuture.supplyAsync(() -> {
             String offlinePlayerUUID = UUIDFetcher.getUUIDString(playerName);
             if (offlinePlayerUUID!=null && !offlinePlayerUUID.isEmpty()) {
-                return Bukkit.getOfflinePlayer(UUID.fromString(offlinePlayerUUID)).hasPlayedBefore();
+                return Bukkit.getPlayer(UUID.fromString(offlinePlayerUUID))!=null || Bukkit.getOfflinePlayer(UUID.fromString(offlinePlayerUUID)).hasPlayedBefore();
             } else {
                 return false;
             }
