@@ -6,7 +6,7 @@ import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import me.navoei.myhomes.MyHomes;
 import me.navoei.myhomes.language.Lang;
-import me.navoei.myhomes.uuid.Fetcher;
+import me.navoei.myhomes.uuid.UUIDFetcher;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.ConsoleCommandSender;
@@ -74,7 +74,7 @@ public class HomeCommand extends CommandAPICommand {
                     }
 
                    if (homeName_or_Player!=null && result_homeList.stream().noneMatch(homeName_or_Player::equalsIgnoreCase)) {
-                       Fetcher.getPlayerUUID(homeName_or_Player).thenAccept(result_homeownerUUID -> {
+                       UUIDFetcher.getPlayerUUID(homeName_or_Player).thenAccept(result_homeownerUUID -> {
                            String invitedHome = arguments.getByClass("invited_home", String.class);
                            if (invitedHome!=null) {
                                if (!invitedHome.matches("[a-zA-Z0-9]*")) {

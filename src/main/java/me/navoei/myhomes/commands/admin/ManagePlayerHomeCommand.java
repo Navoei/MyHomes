@@ -6,7 +6,7 @@ import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import me.navoei.myhomes.MyHomes;
 import me.navoei.myhomes.language.Lang;
-import me.navoei.myhomes.uuid.Fetcher;
+import me.navoei.myhomes.uuid.UUIDFetcher;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -45,7 +45,7 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
         })));
         this.withArguments(new StringArgument("home_name").replaceSuggestions(ArgumentSuggestions.stringCollectionAsync((sender) -> CompletableFuture.supplyAsync(() -> {
             String playerName = sender.previousArgs().getByClass("player", String.class);
-            return Fetcher.getPlayerUUID(playerName).thenComposeAsync(playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(playerUUID)).join();
+            return UUIDFetcher.getPlayerUUID(playerName).thenComposeAsync(playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(playerUUID)).join();
         }))));
         this.withOptionalArguments(new StringArgument("optional_argument").replaceSuggestions(ArgumentSuggestions.stringCollection((sender) -> List.of("invite", "uninvite", "privacy", "set", "delete", "listinvites", "info", "rename"))));
         this.withOptionalArguments(new StringArgument("sub_argument").replaceSuggestions(ArgumentSuggestions.stringCollectionAsync((sender) -> CompletableFuture.supplyAsync(() -> {
@@ -60,7 +60,7 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
                 return playerNames;
             }
             if (optionalArg.equalsIgnoreCase("uninvite")) {
-                return Fetcher.getPlayerUUID(playerName).thenComposeAsync(playerUUID -> plugin.getDatabase().getHomeInvitedPlayers(playerUUID, homeName)).join();
+                return UUIDFetcher.getPlayerUUID(playerName).thenComposeAsync(playerUUID -> plugin.getDatabase().getHomeInvitedPlayers(playerUUID, homeName)).join();
             }
             if (optionalArg.equalsIgnoreCase("privacy")) {
                 return List.of("private", "public");
@@ -82,7 +82,7 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
         }
 
         if (optionalArgument==null) {
-            Fetcher.getPlayerUUID(playerName)
+            UUIDFetcher.getPlayerUUID(playerName)
                     .thenComposeAsync(playerUUID -> plugin.getDatabase().getHomeUsingHomeownerUUID(playerUUID, homeName))
                     .thenAccept(result_home -> {
                         if (result_home.isEmpty()) {
@@ -110,7 +110,7 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
                     player.sendMessage(Lang.PREFIX + Lang.INVALID_ARGUMENTS.toString());
                     return 0;
                 }
-                Fetcher.getPlayerUUID(playerName)
+                UUIDFetcher.getPlayerUUID(playerName)
                         .thenAccept(result_playerUUID -> plugin.getDatabase().getHomeUsingHomeownerUUID(result_playerUUID, homeName)
                         .thenAccept(result_home -> {
                             if (result_home.isEmpty()) {
@@ -122,7 +122,7 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
                                 player.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_CANNOT_INVITE_SELF.toString().replace("%player%", playerName));
                                 return;
                             }
-                            Fetcher.checkPlayedBefore(invitedPlayerName)
+                            UUIDFetcher.checkPlayedBefore(invitedPlayerName)
                                     .thenAccept(result_playedBefore -> {
                                         if (result_playedBefore) {
                                             plugin.getDatabase().getHomeInvitedPlayers(result_playerUUID, homeName).thenAccept(result_homeInvitedPlayers -> {
@@ -134,7 +134,7 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
                                                     }
                                                 } else {
                                                     if (homeName.equalsIgnoreCase("Home")) {
-                                                        Fetcher.getPlayerUUID(invitedPlayerName).thenAccept(result_invitedPlayerUUID -> plugin.getDatabase().setInviteColumnsUsingHomeownerUUID(result_playerUUID, "Home", result_invitedPlayerUUID));
+                                                        UUIDFetcher.getPlayerUUID(invitedPlayerName).thenAccept(result_invitedPlayerUUID -> plugin.getDatabase().setInviteColumnsUsingHomeownerUUID(result_playerUUID, "Home", result_invitedPlayerUUID));
                                                         player.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_INVITED_TO_DEFAULT_HOME.toString().replace("%invited_player%", invitedPlayerName).replace("%homeowner%", playerName));
 
                                                         Player invitedPlayer = plugin.getServer().getPlayer(invitedPlayerName);
@@ -153,7 +153,7 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
                                                             String homeNameLowerCase = homeName.toLowerCase();
                                                             int homeNameWithCaseIndex = result_homeListLowerCase.indexOf(homeNameLowerCase);
                                                             String homeNameWithCase = result_homeList.get(homeNameWithCaseIndex);
-                                                            Fetcher.getPlayerUUID(invitedPlayerName).thenAccept(result_invitedPlayerUUID -> plugin.getDatabase().setInviteColumnsUsingHomeownerUUID(result_playerUUID, homeNameWithCase, result_invitedPlayerUUID));
+                                                            UUIDFetcher.getPlayerUUID(invitedPlayerName).thenAccept(result_invitedPlayerUUID -> plugin.getDatabase().setInviteColumnsUsingHomeownerUUID(result_playerUUID, homeNameWithCase, result_invitedPlayerUUID));
                                                             player.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_INVITED_TO_SPECIFIED_HOME.toString().replace("%invited_player%", invitedPlayerName).replace("%home%", homeNameWithCase).replace("%homeowner%", playerName));
 
                                                             Player invitedPlayer = plugin.getServer().getPlayer(invitedPlayerName);
@@ -178,7 +178,7 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
                     player.sendMessage(Lang.PREFIX + Lang.INVALID_ARGUMENTS.toString());
                     return 0;
                 }
-                Fetcher.getPlayerUUID(playerName)
+                UUIDFetcher.getPlayerUUID(playerName)
                         .thenAccept(result_playerUUID -> plugin.getDatabase().getHomeUsingHomeownerUUID(result_playerUUID, homeName)
                         .thenAccept(result_home -> {
                             if (result_home.isEmpty()) {
@@ -198,7 +198,7 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
                                         player.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_HAS_NOT_BEEN_INVITED_TO_SPECIFIED_HOME.toString().replace("%uninvited_player%", uninvitedPlayerName).replace("%home%", homeName).replace("%homeowner%", playerName));
                                     }
                                 } else {
-                                    Fetcher.getPlayerUUID(uninvitedPlayerName).thenAccept(result_uninvitedPlayerUUID -> plugin.getDatabase().deleteInviteColumnsUsingHomeownerUUID(result_playerUUID, homeName, result_uninvitedPlayerUUID));
+                                    UUIDFetcher.getPlayerUUID(uninvitedPlayerName).thenAccept(result_uninvitedPlayerUUID -> plugin.getDatabase().deleteInviteColumnsUsingHomeownerUUID(result_playerUUID, homeName, result_uninvitedPlayerUUID));
                                     if (homeName.equalsIgnoreCase("Home")) {
                                         player.sendMessage(Lang.PREFIX + Lang.MANAGE_HOMES_UNINVITED_FROM_DEFAULT_HOME.toString().replace("%uninvited_player%", uninvitedPlayerName).replace("%homeowner%", playerName));
                                     } else {
@@ -214,7 +214,7 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
                     player.sendMessage(Lang.PREFIX + Lang.INVALID_ARGUMENTS.toString());
                     return 0;
                 }
-                Fetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeUsingHomeownerUUID(result_playerUUID, homeName).thenAccept(result_home -> {
+                UUIDFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeUsingHomeownerUUID(result_playerUUID, homeName).thenAccept(result_home -> {
                     if (result_home.isEmpty()) {
                         String playerHasNoHome = Lang.PREFIX + Lang.MANAGE_HOMES_PLAYER_HAS_NO_HOME.toString().replace("%player%", playerName).replace("%home%", homeName);
                         player.sendMessage(Lang.PREFIX + playerHasNoHome);
@@ -249,7 +249,7 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
                     player.sendMessage(Lang.PREFIX + Lang.INVALID_ARGUMENTS.toString());
                     return 0;
                 }
-                Fetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeUsingHomeownerUUID(result_playerUUID, homeName).thenAccept(result_home -> {
+                UUIDFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeUsingHomeownerUUID(result_playerUUID, homeName).thenAccept(result_home -> {
                     if (result_home.isEmpty()) {
                         String playerHasNoHome = Lang.PREFIX + Lang.MANAGE_HOMES_PLAYER_HAS_NO_HOME.toString().replace("%player%", playerName).replace("%home%", homeName);
                         player.sendMessage(Lang.PREFIX + playerHasNoHome);
@@ -276,12 +276,12 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
                 }));
                 return 1;
             } else if (optionalArgument.equalsIgnoreCase("set")) {
-                Fetcher.checkPlayedBefore(playerName).thenAccept(result_playedBefore -> {
+                UUIDFetcher.checkPlayedBefore(playerName).thenAccept(result_playedBefore -> {
                     if (!result_playedBefore) {
                         player.sendMessage(Lang.PREFIX + Lang.PLAYER_NEVER_LOGGED_ON.toString().replace("%player%", playerName));
                         return;
                     }
-                    Fetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
+                    UUIDFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
 
                         int maxHomes = plugin.getConfig().getInt("maximumhomes");
 
@@ -323,7 +323,7 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
                 return 1;
             } else if (optionalArgument.equalsIgnoreCase("delete")) {
 
-                Fetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
+                UUIDFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
 
                     if (result_homeList.stream().noneMatch(homeName::equalsIgnoreCase)) {
                         String playerHasNoHome = Lang.PREFIX + Lang.MANAGE_HOMES_PLAYER_HAS_NO_HOME.toString().replace("%player%", playerName).replace("%home%", homeName);
@@ -344,7 +344,7 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
 
                 return 1;
             } else if (optionalArgument.equalsIgnoreCase("listinvites")) {
-                Fetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
+                UUIDFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
 
                     if (result_homeList.stream().noneMatch(homeName::equalsIgnoreCase)) {
                         String playerHasNoHome = Lang.PREFIX + Lang.MANAGE_HOMES_PLAYER_HAS_NO_HOME.toString().replace("%player%", playerName).replace("%home%", homeName);
@@ -371,7 +371,7 @@ public class ManagePlayerHomeCommand extends CommandAPICommand {
                 }));
                 return 1;
             } else if (optionalArgument.equalsIgnoreCase("info")) {
-                Fetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
+                UUIDFetcher.getPlayerUUID(playerName).thenAccept(result_playerUUID -> plugin.getDatabase().getHomeListUsingHomeownerUUIDAsynchronously(result_playerUUID).thenAccept(result_homeList -> {
                     if (result_homeList.stream().noneMatch(homeName::equalsIgnoreCase)) {
                         String playerHasNoHome = Lang.PREFIX + Lang.MANAGE_HOMES_PLAYER_HAS_NO_HOME.toString().replace("%player%", playerName).replace("%home%", homeName);
                         player.sendMessage(Lang.PREFIX + playerHasNoHome);

@@ -6,7 +6,7 @@ import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import me.navoei.myhomes.MyHomes;
 import me.navoei.myhomes.language.Lang;
-import me.navoei.myhomes.uuid.Fetcher;
+import me.navoei.myhomes.uuid.UUIDFetcher;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
@@ -47,7 +47,7 @@ public class ListPlayerInvitesCommand extends CommandAPICommand {
             player.sendMessage(Lang.PREFIX + Lang.INVALID_ARGUMENTS.toString());
             return 0;
         }
-        Fetcher.getPlayerUUID(playerName)
+        UUIDFetcher.getPlayerUUID(playerName)
                 .thenComposeAsync(result_playerUUID -> plugin.getDatabase().getHomeInviteList(result_playerUUID))
                 .thenAccept(result_homeInviteList -> {
                     if (result_homeInviteList.isEmpty()) {
@@ -77,7 +77,7 @@ public class ListPlayerInvitesCommand extends CommandAPICommand {
             executor.sendMessage(Lang.PREFIX + Lang.INVALID_ARGUMENTS.toString());
             return 0;
         }
-        Fetcher.getPlayerUUID(playerName)
+        UUIDFetcher.getPlayerUUID(playerName)
                 .thenComposeAsync(result_playerUUID -> plugin.getDatabase().getHomeInviteList(result_playerUUID))
                 .thenAccept(result_homeInviteList -> {
                     if (result_homeInviteList.isEmpty()) {

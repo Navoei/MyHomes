@@ -1,7 +1,7 @@
 package me.navoei.myhomes.storage;
 
 import me.navoei.myhomes.MyHomes;
-import me.navoei.myhomes.uuid.Fetcher;
+import me.navoei.myhomes.uuid.UUIDFetcher;
 import org.bukkit.entity.Player;
 
 import java.sql.*;
@@ -649,7 +649,7 @@ public abstract class Database {
 
                 rs = ps.executeQuery();
                 while(rs.next()){
-                    invitedPlayers.add(Fetcher.getPlayerNameFromUUID(rs.getString("invited_player_uuid")));
+                    invitedPlayers.add(UUIDFetcher.getPlayerNameFromUUID(rs.getString("invited_player_uuid")));
                     invitedPlayers.removeAll(Collections.singleton(null));
                 }
 
@@ -682,7 +682,7 @@ public abstract class Database {
 
                 rs = ps.executeQuery();
                 while(rs.next()) {
-                    invitedHomesHashMap.computeIfAbsent(Fetcher.getPlayerNameFromUUID(rs.getString("homeowner_uuid")), homeName -> new ArrayList<>()).add(rs.getString("home_name"));
+                    invitedHomesHashMap.computeIfAbsent(UUIDFetcher.getPlayerNameFromUUID(rs.getString("homeowner_uuid")), homeName -> new ArrayList<>()).add(rs.getString("home_name"));
                     invitedHomesHashMap.keySet().removeAll(Collections.singleton(null));
                 }
             } catch (SQLException ex) {

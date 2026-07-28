@@ -6,7 +6,7 @@ import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import me.navoei.myhomes.MyHomes;
 import me.navoei.myhomes.language.Lang;
-import me.navoei.myhomes.uuid.Fetcher;
+import me.navoei.myhomes.uuid.UUIDFetcher;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
@@ -97,10 +97,10 @@ public class ManageHomeCommand extends CommandAPICommand {
                             return;
                         }
                         String invitedPlayerName = subArgument;
-                        Fetcher.checkPlayedBefore(invitedPlayerName).thenAccept(result_playedBefore -> {
+                        UUIDFetcher.checkPlayedBefore(invitedPlayerName).thenAccept(result_playedBefore -> {
                             if (result_playedBefore) {
                                 plugin.getDatabase().getHomeInvitedPlayers(player.getUniqueId().toString(), homeName)
-                                        .thenAccept(result_homeInvitedPlayers -> Fetcher.getPlayerUUID(invitedPlayerName)
+                                        .thenAccept(result_homeInvitedPlayers -> UUIDFetcher.getPlayerUUID(invitedPlayerName)
                                         .thenAccept(result_invitedPlayerUUID -> {
                                             if (result_homeInvitedPlayers.stream().anyMatch(invitedPlayerName::equalsIgnoreCase)) {
                                                 if (homeName.equalsIgnoreCase("Home")) {
@@ -166,7 +166,7 @@ public class ManageHomeCommand extends CommandAPICommand {
                                     player.sendMessage(Lang.PREFIX + Lang.NOT_INVITED_TO_SPECIFIED_HOME.toString().replace("%player%", uninvitedPlayerName).replace("%home%", homeName));
                                 }
                             } else {
-                                Fetcher.getPlayerUUID(uninvitedPlayerName).thenAccept(result_uninvitedPlayerUUID -> plugin.getDatabase().deleteInviteColumns(player, homeName, result_uninvitedPlayerUUID));
+                                UUIDFetcher.getPlayerUUID(uninvitedPlayerName).thenAccept(result_uninvitedPlayerUUID -> plugin.getDatabase().deleteInviteColumns(player, homeName, result_uninvitedPlayerUUID));
                                 if (homeName.equalsIgnoreCase("Home")) {
                                     player.sendMessage(Lang.PREFIX + Lang.UNINVITED_FROM_DEFAULT_HOME.toString().replace("%player%", uninvitedPlayerName));
                                 } else {

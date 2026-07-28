@@ -8,6 +8,8 @@ import me.navoei.myhomes.events.RespawnEvent;
 import me.navoei.myhomes.language.Lang;
 import me.navoei.myhomes.storage.Database;
 import me.navoei.myhomes.storage.SQLite;
+import me.navoei.myhomes.uuid.UUIDFetcher;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -26,6 +28,17 @@ public final class MyHomes extends JavaPlugin {
     public void onLoad() {
         MyHomes.instance = this;
         log = getLogger();
+
+        UUIDFetcher uuidFetcher = new UUIDFetcher(null);
+        try {
+            uuidFetcher.call();
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Error caching player UUIDs! Disabling plugin.");
+            Bukkit.getServer().getPluginManager().disablePlugin(this);
+            throw new RuntimeException(e);
+        }
+        log.log(Level.INFO, "Finished caching player UUIDs.");
+
         CommandAPI.onLoad(new CommandAPIPaperConfig(this).verboseOutput(false));
         new ListPlayerHomesCommand(this).register(this);
         new ListPlayerInvitesCommand(this).register(this);
